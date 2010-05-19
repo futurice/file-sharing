@@ -57,12 +57,12 @@ Futurice";
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-<title>Futurice Share upload</title>
+<title>Futurice Share</title>
 <link href="css/default.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
 <div id="header">
-        <h1><a href="/">Futurice Share Upload</a></h1>
+        <h1><a href="/">Futurice Share</a></h1>
 </div> 
 <div id="content">
         <p><a href="<?=$url;?>"><?=$url;?></a> has been created, the password is "<?=$password;?>".</p>
@@ -114,5 +114,6 @@ if ($invalid) {
 }
 ?>
 </div>
+<?require_once("footer.php");?>
 </body>
 </html> 

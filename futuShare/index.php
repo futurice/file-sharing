@@ -6,7 +6,7 @@ require_once("common.php");
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-<title>Futurice Share upload</title>
+<title>Futurice Share</title>
 <link href="css/default.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="swfupload/swfupload.js"></script>
 <script type="text/javascript" src="js/swfupload.queue.js"></script>
@@ -64,7 +64,7 @@ require_once("common.php");
 </head>
 <body>
 <div id="header">
-<h1>Futurice Share Upload</h1>
+<h1>Futurice Share</h1>
 </div>
 
 <div id="content">
@@ -83,5 +83,6 @@ require_once("common.php");
 
 	</form>
 </div>
+<?require_once("footer.php");?>
 </body>
 </html>

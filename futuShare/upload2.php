@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-<title>Futurice Share upload</title>
+<title>Futurice Share</title>
 <link href="css/default.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -14,7 +14,7 @@ function handleUpload() {
    $SAVE_ROOT = "/tmp/futuShare/";
    $SAVE_ROOT_TMP = "/tmp/futuShare_tmp/";
    $WEB_PATH = "/var/www/futuUpload/futuShare/upload/";
-   $BASEURL = "http://chlorine.futurice.com/upload/";
+   $BASEURL = "https://share.futurice.com/upload/";
 
    $token_tmp = preg_replace("/(\w+)/", "", $HTTP_GET_VARS['token']);
    if (strlen($token_tmp) != 0) {
@@ -49,19 +49,14 @@ function handleUpload() {
    shell_exec("rm -f " . $filename_tmp);
    shell_exec("rmdir ".$SAVE_ROOT_TMP.$shorturl);
    ?><div id="header">
-        <h1><a href="/">Futurice Share Upload</a></h1>
+        <h1><a href="/">Futurice Share</a></h1>
         </div> 
         <div id="content">
         <p><a href="<?=$url;?>"><?=$url;?></a> has been created, the password is "<?=$password;?>".</p>
 
         <p><strong>Do not lose this information.</strong> It can not be retrieved again. If you lose address or password, you have to upload same files again.</p>
 
-	<p>Recommended practices for delivering password:</p>
-<div><ol>
-<li>Send address with email</li>
-<li>Send password via sms/fax/...</li>
-</ol></div>
-<p>Do not deliver ZIP and password on same media. For example DO NOT send ZIP and password on same email message.</p>
+	<p>Do not deliver ZIP and password on same media. For example DO NOT send ZIP and password on same email message.</p>
 
 <?
 if ($valid_ip) {
@@ -107,5 +102,6 @@ if ($valid_ip) {
 handleUpload();
 ?>
 
+<?require_once("footer.php");?>
 </body>
 </html> 
