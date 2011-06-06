@@ -20,7 +20,7 @@ require_once("common.php");
 				flash_url : "swfupload/swfupload.swf",
 				upload_url: "upload.php",
 				post_params: {"PHPSESSID" : "<?php echo session_id(); ?>"},
-				file_size_limit : "100 MB",
+				file_size_limit : "340 MB",
 				file_types : "*",
 				file_types_description : "All Files",
 				file_upload_limit : 500,
@@ -70,7 +70,7 @@ require_once("common.php");
 <div id="content">
 	<h2>Upload</h2>
 	<form id="form1" action="index.php" method="post" enctype="multipart/form-data">
-		<p>This page allows you to upload files and creates a password-protected zipfile out of them. Maximum filesize is 100MB. You can upload multiple files by pressing shift (or ctrl) when selecting files. ZIP will be automatically created after selecting files.</p>
+		<p>This page allows you to upload files and creates a password-protected zipfile out of them. Maximum filesize is 300MB. You can upload multiple files by pressing shift (or ctrl) when selecting files. ZIP will be automatically created after selecting files.</p>
                         <br/>
 			<div class="fieldset flash" id="fsUploadProgress">
 			<span class="legend">Files</span>

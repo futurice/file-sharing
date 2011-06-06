@@ -22,7 +22,7 @@ if ($valid_ip && isset($_POST['password']) && isset($_POST['url']) && isset($_PO
  }
  if (!$invalid) {
   $smstext = rawurlencode("Your password is \"".$password."\". You should receive URL shortly via email. Br, Futurice");
-  $smsurl = "https://backupmaster.lan.futurice.org:13013/cgi-bin/sendsms?username=kanneluser&password=df89asj89I23hvcxSDasdf3298jvkjc839&to=".$mobile."&text=".$smstext;
+  $smsurl = "https://backupmaster2.futurice.com:13013/cgi-bin/sendsms?username=kanneluser&password=df89asj89I23hvcxSDasdf3298jvkjc839&to=".$mobile."&text=".$smstext;
   $ch = curl_init($smsurl);
   curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
   curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);

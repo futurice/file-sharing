@@ -30,7 +30,7 @@ function handleUpload() {
    while (file_exists($filename)) {
     $shorturl = trim(shell_exec("pwgen -s -B 6 1"));
     $filename =  $WEB_PATH . $shorturl . ".zip";
-    mkdir($SAVE_ROOT_TMP.$shorturl);
+    mkdir($SAVE_ROOT_TMP.$shorturl, 0700, true);
     $filename_tmp = $SAVE_ROOT_TMP.$shorturl."/files.zip";
    }
    $password = trim(shell_exec("pwgen -s -B 8 1"));

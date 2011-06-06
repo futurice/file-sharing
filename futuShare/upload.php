@@ -31,7 +31,7 @@
 
 // Settings
 	$save_path = $SAVE_ROOT . session_id() . "/";
-	mkdir($save_path);
+	mkdir($save_path, 0700, true);
 				// The path were we will save the file (getcwd() may not be reliable and should be tested in your environment)
 	$upload_name = "Filedata";
 	$max_file_size_in_bytes = 2147483647;				// 2GB in bytes
