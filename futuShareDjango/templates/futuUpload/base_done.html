@@ -1,0 +1,118 @@
+{% extends "futuUpload/base.html" %}
+
+{% block title %}{{ block.super }}: Upload successful{% endblock %}
+
+{% block headscript %}
+
+$(function(){
+
+//Send email and sms
+$("#send-form button").click(function(){
+
+	//Disable the send button so the user can't send again before we're done'
+	$(this).attr('disabled', 'disabled'); 
+	
+	var that = $(this);
+
+	var formstatus = $('#send-status');
+	var form = $('#send-form');
+	
+	formstatus.html('<p>Sending... <img class="file-icon" src="http://localhost/futushare/img/loading.gif" alt="sending"></p>')
+	
+	formstatus.html('');
+	
+	if (form.find("input#email").val() == ''){
+		formstatus.append('<p class="error">No email address.</p>');
+		that.removeAttr('disabled'); //Enable sending again
+
+	} else if (form.find("input#sms").val() == '+358'
+		|| form.find("input#sms").val() == ''){
+		formstatus.append('<p class="error">No phone number.</p>');
+		that.removeAttr('disabled'); //Enable sending again
+		
+	} else {
+	
+		var password = $("#pass").text();
+		var file = $("#file").text();
+		var email = $("#email").val();
+		var phone = $("#sms").val().replace(/ /g,''); //replace spaces in number
+	
+		form.hide();
+		
+		//Send the email and sms
+		formstatus.load('/send/'+file+'/'+email+'/'+phone+'/'+password+'/ #response', function(response, status, xhr) {
+ 			if (status == "error") {
+    			var msg = "Sorry, but there was an error sending the request" + xhr.status + " " + xhr.statusText;
+    			$(this).html('<p  class="error">'+msg+'</p>');
+  			} else {
+  				if (response == 'DONE'){
+  					$(this).html('<p>The messages were sent successfully.</p>');
+  				} else if (response == 'BADEMAIL'){
+  					$(this).prepend('<p class="error">There was an error in the email address. Nothing was sent.</p>');
+  				} else if (response == 'BADPHONE'){
+  					$(this).prepend('<p class="error">There was an error in the phone number. Nothing was sent.</p>');
+  				} else if (response == 'SMSFAIL'){
+  					$(this).prepend('<p class="error">There was an error when sending the SMS. Nothing was sent.</p>');
+  				} else if (response == 'EMAILFAIL'){
+  					$(this).prepend('<p class="error">There was an error when sending the email.<br>The SMS was sent successfully.</p>');
+  				}
+  			}
+  			that.removeAttr('disabled');//Enable sending again
+		});
+		
+		form.show(); //Show the form
+		
+	}
+});
+
+});
+
+
+{% endblock %}
+
+
+{% block content %}
+<div class="passnlink">
+<p><span class="italic">link to file</span><br><a class="ziplink" href="{{ link }}">{{ link }}</a></p>
+<p class="passtext">
+	<span class="italic">password</span><br>
+	<span class="password">{{ password }}</span>
+</p>
+</div>
+<div class="securityInfo">
+<p>Do not lose this information, as it can not be retrieved again. 
+If you lose the address or password, you have to upload same files again.<br>
+Do not deliver the ZIP and password on same media.
+For example, DO NOT send the ZIP and password in the same email message.</p>
+</div>
+
+
+<div id="send-form-wrapper">
+
+	<h2>Send</h2>
+	
+	<div id="send-status"></div>
+	
+	<div id="send-form">
+		<div id="sendEmail">
+			<span>Email: </span><input type="text" name="email" id="email" placeholder="example@futurice.com">
+		</div>
+
+
+		<div id="sendSMS">
+			<span>Mobile phone: </span><input type="text" name="sms" id="sms" value="+358" placeholder="+358 50 123 123 12">
+			<br>
+			<span class="eg">(eg. +35840123123123)</span>
+		</div>
+	
+		<button>Send</button>
+	</div>
+</div>
+
+<div id="info" style="display: none;">
+<span id="pass">{{ password }}</span>
+<span id="file">{{ file }}</span>
+<span id="response"></span>
+</div>
+
+{% endblock %}

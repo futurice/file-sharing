@@ -1,0 +1,343 @@
+<!DOCTYPE HTML>
+<head>
+<title>{% block title %}Futurice Share{% endblock %}</title>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"></script>
+<script src="/futushare/underscore.js" type="text/javascript" charset="utf-8"></script>
+<script src="/futushare/backbone.js" type="text/javascript" charset="utf-8"></script>
+
+<link rel="stylesheet" href="/futushare/css/normalize.css" type="text/css" />
+<link rel="stylesheet" href="/futushare/css/default.css" type="text/css" />
+
+<script>
+// TODO: Drag&Drop?
+{% block headscript %}
+$(function(){
+		
+	//Create an individual foldername for the files
+	var foldername = new Date().getTime();
+	foldername += Math.floor(Math.random()*99);
+	
+	//Code for the upload form's content
+	var newForm = '<input type="file" name="file" />';
+	
+	//Model for the file
+	var File = Backbone.Model.extend({
+		url: '/foo/',
+		
+		initialize: function(){
+			_.bindAll(this, 'save', 'destroy');
+			
+			this.bind('all', function(event){
+				console.log('Event: '+ event);
+			});
+		},
+		
+		save : function(attrs, options) {
+			this.trigger('save');
+			return this;
+		},
+		
+		destroy : function(options) {
+			if (this.collection) this.collection.remove(this);
+			this.trigger('remove');			
+			return this;
+		}
+	});
+	
+	//Collection of files
+	var FileList = Backbone.Collection.extend({
+		model: File,
+	});
+	
+	//The view for the individual models
+	var FileView = Backbone.View.extend({
+		tagName: 'form',
+		
+		events: {
+			'click img:first': 'removeFile',
+			'change input:file' : 'showName'
+		},
+		
+		initialize: function(){
+			_.bindAll(this, 'render', 'removeFile', 'remove', 'showName', 'uploadFile');
+			this.el = $(this.el);
+			
+			//The name for the iframe assisciated with this form
+			var iframeName = 'up-iframe-' + (new Date()).getTime();
+			
+			this.el.attr('action', '/'+foldername+'/');
+			this.el.attr('enctype', 'multipart/form-data');
+			this.el.attr('method', 'POST');
+			this.el.attr('target', iframeName);
+			
+			this.model.bind('save', this.uploadFile);
+			this.model.bind('remove', this.remove);
+
+			this.targetIframe = $('<iframe name="' + iframeName + '" style="display: none;"></iframe>');
+	
+			//Add the iframe to the DOM
+			$('#iframes').append(this.targetIframe);		
+		},
+		
+		render: function(){
+			$(this.el).html(newForm);
+		},
+		
+		removeFile: function(){
+			this.model.destroy();
+			return false;
+		},
+		
+		//Show the name instead of the file browser
+		showName: function(){
+			var fileName =  this.el.find('input:file').val();
+			this.el.find('input:file').hide();
+			this.el.prepend('<span class="filename">'+fileName+' </span><img src="/futushare/img/delete.png" class="file-icon" alt="remove">');
+		},
+		
+		uploadFile: function(){
+			
+			this.el.find('img').remove();
+			this.el.append('<img class="file-icon" src="/futushare/img/loading.gif" alt="loading">')
+			
+			var that = this;
+			
+			//Set the callback function for the iframe
+			this.targetIframe.load(function (){
+				
+				//Get the status from the iframe
+				var status = $(this).contents().text();
+				
+				if (status != ''){
+					//Clear old iamges
+					that.el.find('img').remove();
+					
+					if (status == 'DONE') {
+						//Add done icon
+						that.el.append('<img class="file-icon" src="/futushare/img/check.png" alt="done">')
+				
+					} else {				
+						//Add warning icon
+						that.el.append('<img class="file-icon" src="/futushare/img/alert.png" alt="alert">\
+								<span> There was an error with the upload: '+status+'</span>');
+						
+						that.model.trigger('fileError');
+					}
+					
+					that.model.trigger('fileUploaded');
+				}
+				
+			});
+			
+			this.el.submit(); //Submit the form
+			
+		}
+		
+	});
+	
+	//The view for the collection
+	var FileListView = Backbone.View.extend({
+		el: $('#forms-wrapper'),
+		
+		events: {
+			'change form input:file' : 'addNewFile',
+			'click button#upload' : 'uploadAll'
+		},
+		
+		initialize: function(){
+			_.bindAll(this, 'render', 'addOne', 'checkNoForms', 'redirectToZip', 'uploadsDone');
+			
+			this.collection.bind('add', this.addOne);
+			this.collection.bind('remove', this.checkNoForms);
+			
+			this.addNewFile();
+			
+		},
+		
+		//Add another form for the file
+		addOne: function(file){
+			var myFileView = new FileView({
+				model: file
+			});
+			myFileView.render();
+			this.el.append(myFileView.el);
+			
+			if (this.collection.length > 1){
+				$("#forms-wrapper button").removeAttr('disabled');				
+			}
+		},
+		
+		//Add a new model to the collection
+		addNewFile: function(){
+			this.collection.add([new File()]);
+		},
+		
+		//Check that there is always at least one form
+		checkNoForms: function(){
+			if (this.collection.length == 0) {
+				this.addNewFile();	
+			}
+		},
+		
+		//Submit all the forms
+		uploadAll: function(){
+			//Do not submit if there is only an empty form
+			if (this.collection.length < 2) {
+				return;
+			}
+			
+			//Hide the upload button so users cant click again
+			this.el.find('button#upload').hide(); 
+			
+			//Remove the last model that is the empty form
+			this.collection.last().destroy();
+			
+			
+			var uploadedFiles = 0;
+			var totalFiles = this.collection.length;
+			var that = this;
+			var errors = 0;
+			 
+			//Submit the forms individually by saving the models
+			this.collection.each(function(file){
+				
+				//Set the callback for a finished upload
+				file.bind('fileUploaded', function() {
+					uploadedFiles++;
+					
+					//Check if all the uploads are done
+					if (uploadedFiles == totalFiles){
+						that.uploadsDone(errors);
+					}
+				});
+				
+				//Set the callback for errors in the upload
+				file.bind('fileError', function(){
+					errors++;
+				});
+				
+				 file.save();  //Save the model
+			 });
+		},
+		
+		//When all the uploads are done
+		uploadsDone: function(errors){
+			var that = this;
+			
+			//If there are errors
+			if (errors > 0) {
+				//If there was more than one file
+				if (this.collection.length > 1 ){
+					var errText = $('<div><p>There was an error with one or more files.<br>'
+								+'Do you want to zip the rest of the files anyway?</p>'
+								+'<button class="yes">Yes</button><button class="no">No</button></div>');
+				
+					errText.find("button.yes").click(function(){
+						that.redirectToZip(); //Redirect to zipping the files anyway
+					});
+				
+					errText.find("button.no").click(function(){
+						window.location = '/'; //Redirect to the home page
+					}); 
+						
+				} else {
+					//Only one file was uploaded and it was too big
+					var errText = $('<div><p>The file was too big.</p><button>Return</button></div>');
+					errText.find("button").click(function(){
+						window.location = '/'; 
+					});
+				}
+				
+				//Add the error text to the DOM
+				$("#content").append(errText);
+				
+			} else {
+				//No errors, continue to the zipping
+				that.redirectToZip();
+			}
+		},
+		
+		//Redirect the user to the zipping
+		redirectToZip: function(){
+			//This is done with a form, to comply with REST principles and POST the information
+			$("#content").append('<p><img class="file-icon" src="/futushare/img/loading.gif" alt="zipping"> Zipping...</p>');
+			var redirect = $('<form name="redirect" action="/zip/'+foldername+'/" method="POST"></form>');
+			$('body').append(redirect);
+			redirect.submit();
+		}
+		
+	});
+	
+	
+	//Create the file list and view
+	var myFileList = new FileList();
+	
+	var myListView = new FileListView({
+		collection: myFileList
+	});
+	
+	
+});
+
+{% endblock headscript %}
+</script>
+
+</head>
+
+<body>
+	<div id="wrapper">
+		<div id="header">
+			<h1><a href="/">{% block header %}Futurice Share{% endblock %}</a></h1>
+			<img id="logo" src="/futushare/header-logo.png" alt="logo">
+		</div>
+
+		<div id="content">
+{% block content %}
+
+			<h2>Upload</h2>
+
+			<div id="content-text">
+				<p>This page allows you to upload files and creates a password-protected zipfiles out of them. 
+				The .zip will be automatically created after uploading the files.
+				Maximum file size is 300MB. 
+				</p>		
+			</div>
+
+			<h3>Files:</h3>
+			<div id="forms-wrapper">
+				<button id="upload" disabled="disabled">Upload</button>
+			</div>
+	
+{% endblock content %}
+		</div>
+	</div>
+
+	<!-- Piwik -->
+	<script type="text/javascript">
+		var pkBaseURL = (("https:" == document.location.protocol) ? "https://analytics.futurice.com/piwik/"
+				: "http://analytics.futurice.com/piwik/");
+		document.write(unescape("%3Cscript src='" + pkBaseURL
+				+ "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+	</script>
+	<script type="text/javascript">
+		try {
+			var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 4);
+			piwikTracker.trackPageView();
+			piwikTracker.enableLinkTracking();
+		} catch (err) {
+		}
+	</script>
+	<noscript>
+		<p>
+			<img src="http://analytics.futurice.com/piwik/piwik.php?idsite=4"
+				style="border: 0" alt="" />
+		</p>
+	</noscript>
+	<!-- End Piwik Tag -->
+	
+	<div id="iframes"></div>
+
+</body>
+</html>
+
