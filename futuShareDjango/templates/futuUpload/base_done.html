@@ -17,7 +17,7 @@ $("#send-form button").click(function(){
 	var formstatus = $('#send-status');
 	var form = $('#send-form');
 	
-	formstatus.html('<p>Sending... <img class="file-icon" src="http://localhost/futushare/img/loading.gif" alt="sending"></p>')
+	formstatus.html('<p>Sending... <img class="file-icon" src="https://share.futurice.com/futushare/img/loading.gif" alt="sending"></p>')
 	
 	formstatus.html('');
 	
@@ -40,7 +40,7 @@ $("#send-form button").click(function(){
 		form.hide();
 		
 		//Send the email and sms
-		formstatus.load('/send/'+file+'/'+email+'/'+phone+'/'+password+'/ #response', function(response, status, xhr) {
+		formstatus.load('/futushare/send/'+file+'/'+email+'/'+phone+'/'+password+'/ #response', function(response, status, xhr) {
  			if (status == "error") {
     			var msg = "Sorry, but there was an error sending the request" + xhr.status + " " + xhr.statusText;
     			$(this).html('<p  class="error">'+msg+'</p>');

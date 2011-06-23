@@ -1,7 +1,7 @@
 # Django settings for futuShareDjango project.
 import os
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -50,12 +50,12 @@ USE_L10N = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = os.path.join(PROJECT_PATH, 'static')
+MEDIA_ROOT = ''
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = '/static/'
+MEDIA_URL = ''
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
@@ -101,18 +101,18 @@ INSTALLED_APPS = (
 #FUTUSHARE SETTIGNS
 
 #Directory for storing the files before the zipping
-UPLOAD_DIRECTORY = '/tmp/'
+UPLOAD_DIRECTORY = '/home/share/tmp/'
 
 #Directory for storing the zips
 ZIP_DIRECTORY = '/var/www/futushare/zip/'
 
 #The root url for the zip files
 #This where django redirects the user to the zip
-ZIP_URL = 'http://10.4.2.169/futushare/zip/'
+ZIP_URL = 'https://share.futurice.com/futushare/zips/'
 
 #Max size of individual uploaded files in bytes
 MAX_UPLOAD_FILE_SIZE = 367001600 # 350MB in bytes
 
 #Django server root e.g. http://share.futurice.com/
 #This is used in the visible zip links e.g. http://share.futurice.com/12345678.zip
-SERVER_ROOT_ADDRESS = 'http://10.4.2.169/'
+SERVER_ROOT_ADDRESS = 'https://share.futurice.com/futushare/'

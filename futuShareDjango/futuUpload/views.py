@@ -106,10 +106,10 @@ def send(request, file, email, phone, password):
 	
 	smsurl = 'https://backupmaster2.futurice.com:13013/cgi-bin/sendsms?username=kanneluser&password=df89asj89I23hvcxSDasdf3298jvkjc839&to='+phone+'&text='+sms
 
-	#response = urllib2.urlopen(smsurl)
-	#html = response.read()
-	#if (html != '0: Accepted for delivery'):
-	#	return HttpResponse('SMSFAIL')						
+	response = urllib2.urlopen(smsurl)
+	html = response.read()
+	if (html != '0: Accepted for delivery'):
+		return HttpResponse('SMSFAIL')						
 	
 	#Send Email
 	email_body = 'Hi,\n\nWe have a new file for you:\n'+SERVER_ROOT_ADDRESS+file+'\n\nWe have sent the password, for the file, to your mobile.\n\nBr, Futurice'
