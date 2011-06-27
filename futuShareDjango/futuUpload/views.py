@@ -70,7 +70,11 @@ def zip(request, folder):
 		path = zip_dir+folder+'.zip'
 
 		#Zip it! using 7zip
-		arguments = ['/usr/bin/7z', 'a', '-p'+password, '-y', path] + files
+		#arguments = ['/usr/bin/7z', 'a', '-p'+password, '-y', path] + files
+		#zip7z = subprocess.call(arguments)
+
+		#Zip it! using zip
+		arguments = ['/usr/bin/zip', '-j', '-P'+password, '-y', path] + files
 		zip7z = subprocess.call(arguments)
 
 		if not zip7z:
