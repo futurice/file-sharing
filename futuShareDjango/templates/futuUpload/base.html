@@ -1,13 +1,15 @@
+{% load static %}
+
 <!DOCTYPE HTML>
 <head>
 <title>{% block title %}Futurice Share{% endblock %}</title>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"></script>
-<script src="/futushare/js/underscore.js" type="text/javascript" charset="utf-8"></script>
-<script src="/futushare/js/backbone.js" type="text/javascript" charset="utf-8"></script>
+<script src="{% get_static_prefix %}js/underscore.js" type="text/javascript" charset="utf-8"></script>
+<script src="{% get_static_prefix %}js/backbone.js" type="text/javascript" charset="utf-8"></script>
 
-<link rel="stylesheet" href="/futushare/css/normalize.css" type="text/css" />
-<link rel="stylesheet" href="/futushare/css/default.css" type="text/css" />
+<link rel="stylesheet" href="{% get_static_prefix %}css/normalize.css" type="text/css" />
+<link rel="stylesheet" href="{% get_static_prefix %}css/default.css" type="text/css" />
 
 <script>
 // TODO: Drag&Drop?
@@ -27,10 +29,7 @@ $(function(){
 		
 		initialize: function(){
 			_.bindAll(this, 'save', 'destroy');
-			
-			this.bind('all', function(event){
-				console.log('Event: '+ event);
-			});
+
 		},
 		
 		save : function(attrs, options) {
@@ -93,13 +92,13 @@ $(function(){
 		showName: function(){
 			var fileName =  this.el.find('input:file').val();
 			this.el.find('input:file').hide();
-			this.el.prepend('<span class="filename">'+fileName+' </span><img src="/futushare/img/delete.png" class="file-icon" alt="remove">');
+			this.el.prepend('<span class="filename">'+fileName+' </span><img src="{% get_static_prefix %}img/delete.png" class="file-icon" alt="remove">');
 		},
 		
 		uploadFile: function(){
 			
 			this.el.find('img').remove();
-			this.el.append('<img class="file-icon" src="/futushare/img/loading.gif" alt="loading">')
+			this.el.append('<img class="file-icon" src="{% get_static_prefix %}img/loading.gif" alt="loading">')
 			
 			var that = this;
 			
@@ -115,11 +114,11 @@ $(function(){
 					
 					if (status == 'DONE') {
 						//Add done icon
-						that.el.append('<img class="file-icon" src="/futushare/img/check.png" alt="done">')
+						that.el.append('<img class="file-icon" src="{% get_static_prefix %}img/check.png" alt="done">')
 				
 					} else {				
 						//Add warning icon
-						that.el.append('<img class="file-icon" src="/futushare/img/alert.png" alt="alert">\
+						that.el.append('<img class="file-icon" src="{% get_static_prefix %}img/alert.png" alt="alert">\
 								<span> There was an error with the upload: '+status+'</span>');
 						
 						that.model.trigger('fileError');
@@ -261,7 +260,7 @@ $(function(){
 		//Redirect the user to the zipping
 		redirectToZip: function(){
 			//This is done with a form, to comply with REST principles and POST the information
-			$("#content").append('<p><img class="file-icon" src="/futushare/img/loading.gif" alt="zipping"> Zipping...</p>');
+			$("#content").append('<p><img class="file-icon" src="{% get_static_prefix %}img/loading.gif" alt="zipping"> Zipping...</p>');
 			var redirect = $('<form name="redirect" action="/futushare/zip/'+foldername+'/" method="POST"></form>');
 			$('body').append(redirect);
 			redirect.submit();
@@ -289,7 +288,7 @@ $(function(){
 	<div id="wrapper">
 		<div id="header">
 			<h1><a href="/">{% block header %}Futurice Share{% endblock %}</a></h1>
-			<img id="logo" src="/futushare/img/header-logo.png" alt="logo">
+			<img id="logo" src="{% get_static_prefix %}img/header-logo.png" alt="logo">
 		</div>
 
 		<div id="content">

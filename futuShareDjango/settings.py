@@ -1,7 +1,7 @@
 # Django settings for futuShareDjango project.
 import os
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -13,11 +13,11 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'database.db',                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'NAME': 'database.db', # Or path to database file if using sqlite3.
+        'USER': '', # Not used with sqlite3.
+        'PASSWORD': '', # Not used with sqlite3.
+        'HOST': '', # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '', # Set to empty string for default. Not used with sqlite3.
     }
 }
 
@@ -57,6 +57,18 @@ MEDIA_ROOT = ''
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
 MEDIA_URL = ''
 
+#Where to collect the static files on command: collectstatic
+STATIC_ROOT = "/tmp/"
+
+#Where to look for static files
+STATICFILES_DIRS = (
+	PROJECT_PATH + "/statics/",
+)
+
+#Where the static files are in production
+STATIC_URL = "/futushare/"
+
+
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
@@ -95,8 +107,11 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
+    'django.contrib.staticfiles',
     'futuShareDjango.futuUpload',
 )
+
+EMAIL_HOST = 'smtpgw.futurice.com'
 
 #FUTUSHARE SETTIGNS
 
@@ -116,3 +131,14 @@ MAX_UPLOAD_FILE_SIZE = 367001600 # 350MB in bytes
 #Django server root e.g. http://share.futurice.com/
 #This is used in the visible zip links e.g. http://share.futurice.com/12345678.zip
 SERVER_ROOT_ADDRESS = 'https://share.futurice.com/futushare/'
+
+
+try :
+
+    from env_settings import *
+
+except ImportError as e:
+
+    print "WARNING : settings for the development environment couldn't be imported because:", e
+
+

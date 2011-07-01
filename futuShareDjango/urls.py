@@ -1,24 +1,20 @@
-from django.conf.urls.defaults import *
+import views
 
-# Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
-
-urlpatterns = patterns('',
-
-    # Root view
-    (r'^$', 'futuUpload.views.index'),
+urlpatterns = ('futuUpload.views',
+   # Root view
+    (r'^$', 'index'),
 
     # Upload url
-    (r'^(?P<folder>\d+)/$', 'futuUpload.views.upload'),
+    (r'^(?P<folder>\d+)/$', 'upload'),
     
     #Zipping url
-    (r'zip/(?P<folder>\d+)/$', 'futuUpload.views.zip'),
+    (r'zip/(?P<folder>\d+)/$', 'zip'),
     
      # Get zip
-    (r'^(?P<zip>\d+\.\w+)$', 'futuUpload.views.getzip'),
+    (r'^(?P<zip>\d+\.\w+)$', 'getzip'),
     
     #Send mail + sms
-    (r'send/(?P<file>\d+\..+)/(?P<email>.+)/(?P<phone>.+)/(?P<password>.+)/$', 'futuUpload.views.send'),
+    (r'send/(?P<file>\d+\..+)/(?P<email>.+)/(?P<phone>.+)/(?P<password>.+)/$', 'send'),
     
 )
+

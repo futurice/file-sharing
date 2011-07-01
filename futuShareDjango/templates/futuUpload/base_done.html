@@ -1,4 +1,5 @@
 {% extends "futuUpload/base.html" %}
+{% load static %}
 
 {% block title %}{{ block.super }}: Upload successful{% endblock %}
 
@@ -17,7 +18,7 @@ $("#send-form button").click(function(){
 	var formstatus = $('#send-status');
 	var form = $('#send-form');
 	
-	formstatus.html('<p>Sending... <img class="file-icon" src="https://share.futurice.com/futushare/img/loading.gif" alt="sending"></p>')
+	formstatus.html('<p>Sending... <img class="file-icon" src="{% get_static_prefix %}img/loading.gif" alt="sending"></p>')
 	
 	formstatus.html('');
 	
@@ -40,23 +41,20 @@ $("#send-form button").click(function(){
 		form.hide();
 		
 		//Send the email and sms
-		formstatus.load('/futushare/send/'+file+'/'+email+'/'+phone+'/'+password+'/ #response', function(response, status, xhr) {
- 			if (status == "error") {
-    			var msg = "Sorry, but there was an error sending the request" + xhr.status + " " + xhr.statusText;
-    			$(this).html('<p  class="error">'+msg+'</p>');
-  			} else {
+		$.post('/futushare/send/', { file : file, email : email, phone : phone, password : password}, function(response) {
+
   				if (response == 'DONE'){
-  					$(this).html('<p>The messages were sent successfully.</p>');
+  					formstatus.html('<p>The messages were sent successfully.</p>');
   				} else if (response == 'BADEMAIL'){
-  					$(this).prepend('<p class="error">There was an error in the email address. Nothing was sent.</p>');
+  					formstatus.prepend('<p class="error">There was an error in the email address. Nothing was sent.</p>');
   				} else if (response == 'BADPHONE'){
-  					$(this).prepend('<p class="error">There was an error in the phone number. Nothing was sent.</p>');
+  					formstatus.prepend('<p class="error">There was an error in the phone number. Nothing was sent.</p>');
   				} else if (response == 'SMSFAIL'){
-  					$(this).prepend('<p class="error">There was an error when sending the SMS. Nothing was sent.</p>');
+  					formstatus.prepend('<p class="error">There was an error when sending the SMS. Nothing was sent.</p>');
   				} else if (response == 'EMAILFAIL'){
-  					$(this).prepend('<p class="error">There was an error when sending the email.<br>The SMS was sent successfully.</p>');
+  					formstatus.prepend('<p class="error">There was an error when sending the email.<br>The SMS was sent successfully.</p>');
   				}
-  			}
+  			
   			that.removeAttr('disabled');//Enable sending again
 		});
 		

@@ -7,3 +7,5 @@ syntax: glob
 *.project
 *.pid
 *.log
+devurls.*
+env_settings.*
