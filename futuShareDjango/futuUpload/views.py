@@ -79,7 +79,7 @@ def zip(request, folder):
 		firstZip = upload_dir + folder + '/files.zip'
 
 		#Zip it! using zip
-		arguments = ['/usr/bin/zip', '-j', '-P' + password, '-y', firstZip] + files
+		arguments = ['/usr/bin/zip', '-j', '-y', firstZip] + files
 		zip7z = subprocess.call(arguments)
 
 		#Zip it! using zip
@@ -93,8 +93,8 @@ def zip(request, folder):
 				return render_to_response('futuUpload/base_done.html', {'file': folder + '.zip',
 							'password': password, 'link': SERVER_ROOT_ADDRESS + folder + '.zip'})
 		else:
-			print 'Something went wrong while trying to zip the files. Make sure 7z is installed and working.'
-			print '7z exit code: %d' % zip7z
+			print 'Something went wrong while trying to zip the files. Make sure zip is installed and working.'
+			print 'zip exit code: %d' % zip7z
 			print " ".join(arguments)
 			
 			return HttpResponseServerError()
