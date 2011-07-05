@@ -45,6 +45,8 @@ $("#send-form button").click(function(){
 
   				if (response == 'DONE'){
   					formstatus.html('<p>The messages were sent successfully.</p>');
+					$('#email').val('');
+					$('#sms').val('+358');
   				} else if (response == 'BADEMAIL'){
   					formstatus.prepend('<p class="error">There was an error in the email address. Nothing was sent.</p>');
   				} else if (response == 'BADPHONE'){

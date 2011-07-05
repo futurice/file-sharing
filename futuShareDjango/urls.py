@@ -19,6 +19,6 @@ urlpatterns = patterns('',
     (r'^(?P<zip>\d+\.\w+)$', 'futuUpload.views.getzip'),
     
     #Send mail + sms
-    (r'send/(?P<file>\d+\..+)/(?P<email>.+)/(?P<phone>.+)/(?P<password>.+)/$', 'futuUpload.views.send'),
+    (r'send/$', 'futuUpload.views.send'),
     
 )
