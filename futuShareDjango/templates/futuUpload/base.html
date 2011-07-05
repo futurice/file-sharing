@@ -4,7 +4,7 @@
 <head>
 <title>{% block title %}Futurice Share{% endblock %}</title>
 
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"></script>
+<script src="{% get_static_prefix %}js/jquery.js"></script>
 <script src="{% get_static_prefix %}js/underscore.js" type="text/javascript" charset="utf-8"></script>
 <script src="{% get_static_prefix %}js/backbone.js" type="text/javascript" charset="utf-8"></script>
 
@@ -90,7 +90,8 @@ $(function(){
 		
 		//Show the name instead of the file browser
 		showName: function(){
-			var fileName =  this.el.find('input:file').val();
+			var filePath =  this.el.find('input:file').val();
+			var fileName = filePath.replace('C:\\fakepath\\', '');
 			this.el.find('input:file').hide();
 			this.el.prepend('<span class="filename">'+fileName+' </span><img src="{% get_static_prefix %}img/delete.png" class="file-icon" alt="remove">');
 		},
@@ -288,7 +289,7 @@ $(function(){
 	<div id="wrapper">
 		<div id="header">
 			<h1><a href="/">{% block header %}Futurice Share{% endblock %}</a></h1>
-			<img id="logo" src="{% get_static_prefix %}img/header-logo.png" alt="logo">
+			<a href="/"><img id="logo" src="{% get_static_prefix %}img/header-logo.png" alt="logo"></a>
 		</div>
 
 		<div id="content">
