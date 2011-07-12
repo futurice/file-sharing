@@ -5,7 +5,7 @@ import hashlib, datetime
 class Zip(models.Model):
   filename = models.CharField(max_length=20, primary_key=True)
   password = models.CharField(max_length=40)
-  date_created = models.DateTimeField()
+  date_created = models.DateTimeField(auto_now_add=True)
 
   def encrypt(self, text):
     h = hashlib.sha1()
@@ -15,7 +15,6 @@ class Zip(models.Model):
 
   def save(self, *args, **kwargs):
     self.password = self.encrypt(self.password)
-    self.date_created = datetime.datetime.today()
     super(Zip, self).save(*args, **kwargs)
 
   def isCorrectPassword(self, passwordAttempt):
