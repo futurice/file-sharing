@@ -124,9 +124,7 @@ ZIP_URL = 'https://share.futurice.com/futushare/zips/'
 
 #Location of passwordless zips
 #on the server
-FREE_ZIP_DIR = '/var/www/futushare/openzip/'
-#on the web (this + filename = url to password free zip)
-FREE_ZIP_URL = 'https://share.futurice.com/futushare/fzips/'
+FREE_ZIP_DIR = '/home/share/openzips/'
 
 #Max size of individual uploaded files in bytes
 MAX_UPLOAD_FILE_SIZE = 367001600 # 350MB in bytes

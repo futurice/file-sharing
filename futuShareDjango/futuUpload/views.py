@@ -3,8 +3,8 @@ from django.http import HttpResponse, HttpResponseNotFound, HttpResponseServerEr
 from django.shortcuts import render_to_response, get_object_or_404
 from django.core.validators import email_re
 from django.core.mail import send_mail
-import subprocess, random, string, urllib2, smtplib, re, shutil
-from futuShareDjango.settings import UPLOAD_DIRECTORY, ZIP_DIRECTORY, ZIP_URL, MAX_UPLOAD_FILE_SIZE, SERVER_ROOT_ADDRESS, PASSWORD_LENGTH, FREE_ZIP_DIR, FREE_ZIP_URL
+import subprocess, random, string, urllib2, smtplib, re, shutil, mimetypes
+from futuShareDjango.settings import UPLOAD_DIRECTORY, ZIP_URL, MAX_UPLOAD_FILE_SIZE, SERVER_ROOT_ADDRESS, PASSWORD_LENGTH, FREE_ZIP_DIR
 from futuUpload.models import Zip
 
 #The root folder for the files:
@@ -47,6 +47,7 @@ def upload(request, folder):
 		return HttpResponseNotFound()
 	
 	#Redirect the user to the address specified in ZIP_URL
+	#This is used for old password protected zip files
 def getzip(request, zip):
 	return HttpResponseRedirect(ZIP_URL + zip)
 	
@@ -86,6 +87,7 @@ def zip(request, folder):
 		arguments = ['/usr/bin/zip', '-j', '-y', path] + files
 		zip7z = subprocess.call(arguments)
 
+		#Was the zipping successful?
 		if not zip7z:
 				#Remove the individual files
 				shutil.rmtree(upload_dir + folder + '/')
@@ -106,6 +108,7 @@ def zip(request, folder):
 		#If you try something other than POST, you are redirected to the front page
 		return HttpResponseRedirect('/');
 	
+
 	#Send an email and an sms to the specified addresses
 def send(request):
 
@@ -138,7 +141,7 @@ def send(request):
 			return HttpResponse('SMSFAIL')						
 	
 		#Send Email
-		email_body = 'Hi,\n\nWe have a new file for you:\n' + SERVER_ROOT_ADDRESS + filename + '\n\nWe have sent the password, for the file, to your mobile.\n\nBr, Futurice'
+		email_body = 'Hi,\n\nWe have a new file for you:\n' + SERVER_ROOT_ADDRESS + 'ask/' + filename + '\n\nWe have sent the password, for the file, to your mobile.\n\nBr, Futurice'
 	
 		from_addr = 'noreply@futurice.com'
 		subject = 'New file on Futurice file transferring server'
@@ -153,11 +156,10 @@ def send(request):
 	else:
 		return HttpResponseNotFound()
 	
-def passwordPrompt(request, requestedFilename):
-       	p = get_object_or_404(Zip, filename=requestedFilename)
-    	return render_to_response('futuUpload/base_ask.html', {'filename': requestedFilename})
 
-def passwordCheck(request):
+def passwordCheck(request, requestedFilename):
+
+	#Check if we're posting the password
 	if request.method == 'POST':
 		post = request.POST;
 
@@ -165,12 +167,33 @@ def passwordCheck(request):
 		requestPass = post.__getitem__('password')
 		requestFile = post.__getitem__('filename')
 
+		#If there is no such file, 404
 		f = get_object_or_404(Zip, filename=requestFile)
 
+		#Is the password correct?
 		if f.isCorrectPassword(requestPass):
-			#serve file
-			print 'Serve file: '+requestFile
-			return HttpResponse(FREE_ZIP_URL + requestFile)
+			
+			#Serve file
+			mimetypes.init()
+			try:
+        			filePath = FREE_ZIP_DIR + '/' + requestFile
+        			fileSocket = open(filePath,"r")
+        			fileName = path.basename(filePath)
+        			mime_type_guess = mimetypes.guess_type(fileName)
+
+       				if mime_type_guess is not None:
+            				response = HttpResponse(fileSocket, mimetype=mime_type_guess[0])
+        				response['Content-Disposition'] = 'attachment; filename=' + fileName     
+       
+    			except IOError:
+        			return render_to_response('futuUpload/base_ask.html', {'filename': requestedFilename, 'status' : 'There was an error reading the file.'})
+
+    			return response
+
 		else:
-			return HttpResponse('WRONG')
-	return HttpResponse('FAIL')
+			return render_to_response('futuUpload/base_ask.html', {'filename': requestedFilename, 'status' : 'Wrong password.'})
+	
+	#If we're not posting, the password prompt page is shown
+	else:
+		p = get_object_or_404(Zip, filename=requestedFilename)
+    		return render_to_response('futuUpload/base_ask.html', {'filename': requestedFilename})

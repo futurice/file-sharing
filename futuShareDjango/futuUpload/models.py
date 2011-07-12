@@ -1,5 +1,4 @@
 from django.db import models
-from settings import PASSWORD_LENGTH, SECRET_KEY
 import hashlib, datetime
 
 
@@ -10,7 +9,7 @@ class Zip(models.Model):
 
   def encrypt(self, text):
     h = hashlib.sha1()
-    h.update(SECRET_KEY)
+    h.update(self.filename)
     h.update(text)
     return h.hexdigest()
 

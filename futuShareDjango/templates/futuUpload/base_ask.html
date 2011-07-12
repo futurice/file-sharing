@@ -6,41 +6,22 @@
 {% block headscript %}
 
 $(function(){
-
   $('form').submit(function(event) {
-    event.preventDefault(); 
-    var password = $('#password').val();
-    var filename = '{{ filename }}';
-    $.post('/futushare/getfile/', { password: password, filename: filename }, function(response){
-      var status='';
-      $('#status').removeClass();
-      if (response == 'FAIL') {
-        $('#status').addClass('error');
-        status = 'Downloading failed';
-      } else if (response == 'WRONG') {
-        $('#status').addClass('error');
-        status = 'Wrong password';
-      } else {
-	status = 'Correct';
-        $('#status').addClass('success');
-        window.location = response;
-      }
-      $('#status').text(status);
-    });
+    $('#status').removeClass();
+    $('#status').text('');
   });
-
 });
-
-
+ 
 {% endblock %}
 
-
 {% block content %}
-<form action="/" id="passPrompt">
+
+<form action="" id="passPrompt" method="POST">
 <p>Please enter the password for the file:<br /><span class="bigger">{{ filename }}</span></p>
-<input id="password" type="password"></input>
+<input id="password" type="password" name="password"></input>
+<input type="hidden" name="filename" value="{{ filename }}">
 <input type="submit" value="Download">
 </form>
-<div id="status"></div>
+<div id="status" class="error">{{ status }}</div>
 
 {% endblock %}
