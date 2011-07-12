@@ -20,5 +20,11 @@ urlpatterns = patterns('',
     
     #Send mail + sms
     (r'send/$', 'futuUpload.views.send'),
+
+    # Password prompt
+    (r'ask/(?P<requestedFilename>\d+\.\w+)$', 'futuUpload.views.passwordPrompt'),
+
+    # Password prompt
+    (r'getfile/$', 'futuUpload.views.passwordCheck'),
     
 )

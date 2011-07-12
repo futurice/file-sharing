@@ -1,19 +1,17 @@
 from os import path, makedirs, listdir
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseServerError, HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.core.validators import email_re
 from django.core.mail import send_mail
 import subprocess, random, string, urllib2, smtplib, re, shutil
-from futuShareDjango.settings import UPLOAD_DIRECTORY, ZIP_DIRECTORY, ZIP_URL, MAX_UPLOAD_FILE_SIZE, SERVER_ROOT_ADDRESS
-
-
-
+from futuShareDjango.settings import UPLOAD_DIRECTORY, ZIP_DIRECTORY, ZIP_URL, MAX_UPLOAD_FILE_SIZE, SERVER_ROOT_ADDRESS, PASSWORD_LENGTH, FREE_ZIP_DIR, FREE_ZIP_URL
+from futuUpload.models import Zip
 
 #The root folder for the files:
 upload_dir = UPLOAD_DIRECTORY
 
 #Folder to store the zips
-zip_dir = ZIP_DIRECTORY
+zip_dir = FREE_ZIP_DIR
 
 
 # Renders the frontpage
@@ -58,8 +56,16 @@ def getzip(request, zip):
 def zip(request, folder):
 	
 	if request.method == 'POST':
-		N = 6 #Length of password
-		password = ''.join(random.choice(string.ascii_letters + string.digits) for x in range(N))
+		N = PASSWORD_LENGTH
+		
+		#Hard to remember password
+		#password = ''.join(random.choice(string.ascii_letters + string.digits) for x in range(N))
+
+		#Easier to remember password
+		p = subprocess.Popen(["pwgen", str(N), "1"], stdout=subprocess.PIPE)
+		(password, _) = p.communicate()
+		password = password.replace("\n", "")
+
 	
 		#Generate list of files
 		try:
@@ -76,22 +82,19 @@ def zip(request, folder):
 		#arguments = ['/usr/bin/7z', 'a', '-p'+password, '-y', path] + files
 		#zip7z = subprocess.call(arguments)
 
-		firstZip = upload_dir + folder + '/files.zip'
-
 		#Zip it! using zip
-		arguments = ['/usr/bin/zip', '-j', '-y', firstZip] + files
-		zip7z = subprocess.call(arguments)
-
-		#Zip it! using zip
-		arguments = ['/usr/bin/zip', '-j', '-P' + password, '-y', path] + [firstZip]
+		arguments = ['/usr/bin/zip', '-j', '-y', path] + files
 		zip7z = subprocess.call(arguments)
 
 		if not zip7z:
 				#Remove the individual files
 				shutil.rmtree(upload_dir + folder + '/')
+
+				z = Zip(filename=folder+'.zip', password=password)
+				z.save()
 		
 				return render_to_response('futuUpload/base_done.html', {'file': folder + '.zip',
-							'password': password, 'link': SERVER_ROOT_ADDRESS + folder + '.zip'})
+							'password': password, 'link': SERVER_ROOT_ADDRESS + 'ask/' + folder + '.zip'})
 		else:
 			print 'Something went wrong while trying to zip the files. Make sure zip is installed and working.'
 			print 'zip exit code: %d' % zip7z
@@ -150,4 +153,24 @@ def send(request):
 	else:
 		return HttpResponseNotFound()
 	
+def passwordPrompt(request, requestedFilename):
+       	p = get_object_or_404(Zip, filename=requestedFilename)
+    	return render_to_response('futuUpload/base_ask.html', {'filename': requestedFilename})
 
+def passwordCheck(request):
+	if request.method == 'POST':
+		post = request.POST;
+
+		#Get the variables from the post
+		requestPass = post.__getitem__('password')
+		requestFile = post.__getitem__('filename')
+
+		f = get_object_or_404(Zip, filename=requestFile)
+
+		if f.isCorrectPassword(requestPass):
+			#serve file
+			print 'Serve file: '+requestFile
+			return HttpResponse(FREE_ZIP_URL + requestFile)
+		else:
+			return HttpResponse('WRONG')
+	return HttpResponse('FAIL')

@@ -1,7 +1,7 @@
 # Django settings for futuShareDjango project.
 import os
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -118,12 +118,15 @@ EMAIL_HOST = 'smtpgw.futurice.com'
 #Directory for storing the files before the zipping
 UPLOAD_DIRECTORY = '/home/share/tmp/'
 
-#Directory for storing the zips
-ZIP_DIRECTORY = '/var/www/futushare/zip/'
-
-#The root url for the zip files
+#The root url for the password protected zip files
 #This where django redirects the user to the zip
 ZIP_URL = 'https://share.futurice.com/futushare/zips/'
+
+#Location of passwordless zips
+#on the server
+FREE_ZIP_DIR = '/var/www/futushare/openzip/'
+#on the web (this + filename = url to password free zip)
+FREE_ZIP_URL = 'https://share.futurice.com/futushare/fzips/'
 
 #Max size of individual uploaded files in bytes
 MAX_UPLOAD_FILE_SIZE = 367001600 # 350MB in bytes
@@ -132,6 +135,8 @@ MAX_UPLOAD_FILE_SIZE = 367001600 # 350MB in bytes
 #This is used in the visible zip links e.g. http://share.futurice.com/12345678.zip
 SERVER_ROOT_ADDRESS = 'https://share.futurice.com/futushare/'
 
+#Length of the password
+PASSWORD_LENGTH = 8
 
 try :
 

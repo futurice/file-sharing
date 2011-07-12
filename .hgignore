@@ -11,3 +11,4 @@ syntax: glob
 devurls.*
 env_settings.*
 .sass*
+*.db
