@@ -17,9 +17,8 @@ $(function(){
 {% block content %}
 
 <form action="" id="passPrompt" method="POST">
-<p>Please enter the password for the file:<br /><span class="bigger">{{ filename }}</span></p>
-<input id="password" type="password" name="password"></input>
-<input type="hidden" name="filename" value="{{ filename }}">
+{% csrf_token %}
+{{ form.as_p }}
 <input type="submit" value="Download">
 </form>
 <div id="status" class="error">{{ status }}</div>

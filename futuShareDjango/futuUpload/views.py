@@ -4,14 +4,17 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.core.validators import email_re
 from django.core.mail import send_mail
 import subprocess, random, string, urllib2, smtplib, re, shutil, mimetypes
-from futuShareDjango.settings import UPLOAD_DIRECTORY, ZIP_URL, MAX_UPLOAD_FILE_SIZE, SERVER_ROOT_ADDRESS, PASSWORD_LENGTH, FREE_ZIP_DIR
+from django.conf import settings
 from futuUpload.models import Zip
+from futuUpload.forms import PasswordForm
+from django.forms.widgets import HiddenInput
+from django.template import RequestContext
 
 #The root folder for the files:
-upload_dir = UPLOAD_DIRECTORY
+upload_dir = settings.UPLOAD_DIRECTORY
 
 #Folder to store the zips
-zip_dir = FREE_ZIP_DIR
+zip_dir = settings.FREE_ZIP_DIR
 
 
 # Renders the frontpage
@@ -26,7 +29,7 @@ def upload(request, folder):
 		for field_name in request.FILES:
 			uploaded_file = request.FILES[field_name]
 			
-			if uploaded_file.size > MAX_UPLOAD_FILE_SIZE:
+			if uploaded_file.size > settings.MAX_UPLOAD_FILE_SIZE:
 				return HttpResponse('File was too big.')
 
 			# Create folder
@@ -49,7 +52,7 @@ def upload(request, folder):
 	#Redirect the user to the address specified in ZIP_URL
 	#This is used for old password protected zip files
 def getzip(request, zip):
-	return HttpResponseRedirect(ZIP_URL + zip)
+	return HttpResponseRedirect(settings.ZIP_URL + zip)
 	
 	
 	#Zip the files in the folder specified in the arguments and save
@@ -57,7 +60,7 @@ def getzip(request, zip):
 def zip(request, folder):
 	
 	if request.method == 'POST':
-		N = PASSWORD_LENGTH
+		N = settings.PASSWORD_LENGTH
 		
 		#Hard to remember password
 		#password = ''.join(random.choice(string.ascii_letters + string.digits) for x in range(N))
@@ -87,16 +90,17 @@ def zip(request, folder):
 		arguments = ['/usr/bin/zip', '-j', '-y', path] + files
 		zip7z = subprocess.call(arguments)
 
+		#Remove the individual files
+		shutil.rmtree(upload_dir + folder + '/')
+
 		#Was the zipping successful?
 		if not zip7z:
-				#Remove the individual files
-				shutil.rmtree(upload_dir + folder + '/')
-
 				z = Zip(filename=folder+'.zip', password=password)
 				z.save()
 		
 				return render_to_response('futuUpload/base_done.html', {'file': folder + '.zip',
-							'password': password, 'link': SERVER_ROOT_ADDRESS + 'ask/' + folder + '.zip'})
+							'password': password, 'link': settings.SERVER_ROOT_ADDRESS + 'ask/' + folder + '.zip'})
+		
 		else:
 			print 'Something went wrong while trying to zip the files. Make sure zip is installed and working.'
 			print 'zip exit code: %d' % zip7z
@@ -141,7 +145,7 @@ def send(request):
 			return HttpResponse('SMSFAIL')						
 	
 		#Send Email
-		email_body = 'Hi,\n\nWe have a new file for you:\n' + SERVER_ROOT_ADDRESS + 'ask/' + filename + '\n\nWe have sent the password, for the file, to your mobile.\n\nBr, Futurice'
+		email_body = 'Hi,\n\nWe have a new file for you:\n' + settings.SERVER_ROOT_ADDRESS + 'ask/' + filename + '\n\nWe have sent the password, for the file, to your mobile.\n\nBr, Futurice'
 	
 		from_addr = 'noreply@futurice.com'
 		subject = 'New file on Futurice file transferring server'
@@ -161,39 +165,44 @@ def passwordCheck(request, requestedFilename):
 
 	#Check if we're posting the password
 	if request.method == 'POST':
-		post = request.POST;
+		form = PasswordForm(request.POST)
 
-		#Get the variables from the post
-		requestPass = post.__getitem__('password')
-		requestFile = post.__getitem__('filename')
-
-		#If there is no such file, 404
-		f = get_object_or_404(Zip, filename=requestFile)
-
-		#Is the password correct?
-		if f.isCorrectPassword(requestPass):
+		if form.is_valid():
 			
-			#Serve file
-			mimetypes.init()
-			try:
-        			filePath = FREE_ZIP_DIR + '/' + requestFile
-        			fileSocket = open(filePath,"r")
-        			fileName = path.basename(filePath)
-        			mime_type_guess = mimetypes.guess_type(fileName)
+			#Get the variables from the post
+			requestPass = form.cleaned_data['password']
+			requestFile = form.cleaned_data['filename']
 
-       				if mime_type_guess is not None:
-            				response = HttpResponse(fileSocket, mimetype=mime_type_guess[0])
-        				response['Content-Disposition'] = 'attachment; filename=' + fileName     
-       
-    			except IOError:
-        			return render_to_response('futuUpload/base_ask.html', {'filename': requestedFilename, 'status' : 'There was an error reading the file.'})
+			#If there is no such file, 404
+			f = get_object_or_404(Zip, filename=requestFile)
 
-    			return response
+			#Is the password correct?
+			if f.isCorrectPassword(requestPass):
+			
+				#Serve file
+				mimetypes.init()
+				try:
+        				filePath = settings.FREE_ZIP_DIR + '/' + requestFile
+        				fileSocket = open(filePath,"r")
+        				fileName = path.basename(filePath)
+        				mime_type_guess = mimetypes.guess_type(fileName)
+	
+       					if mime_type_guess is not None:
+            					response = HttpResponse(fileSocket, mimetype=mime_type_guess[0])
+        					response['Content-Disposition'] = 'attachment; filename=' + fileName     
+       	
+    				except IOError:
+        				return render_to_response('futuUpload/base_ask.html', {'form': form, 'status' : 'There was an error reading the file.'}, context_instance=RequestContext(request))
+	
+    				return response
 
+			else:
+				return render_to_response('futuUpload/base_ask.html', {'form': form, 'status' : 'Wrong password.'}, context_instance=RequestContext(request))
 		else:
-			return render_to_response('futuUpload/base_ask.html', {'filename': requestedFilename, 'status' : 'Wrong password.'})
+			return render_to_response('futuUpload/base_ask.html', {'form': form}, context_instance=RequestContext(request))
 	
 	#If we're not posting, the password prompt page is shown
 	else:
 		p = get_object_or_404(Zip, filename=requestedFilename)
-    		return render_to_response('futuUpload/base_ask.html', {'filename': requestedFilename})
+		form = PasswordForm(initial={'filename': requestedFilename})
+    		return render_to_response('futuUpload/base_ask.html', {'form': form}, context_instance=RequestContext(request))
