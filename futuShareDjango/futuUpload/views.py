@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseNotFound, HttpResponseServerEr
 from django.shortcuts import render_to_response, get_object_or_404
 from django.core.validators import email_re
 from django.core.mail import send_mail
-import subprocess, random, string, urllib2, smtplib, re, shutil, mimetypes
+import subprocess, random, string, urllib2, smtplib, re, shutil, mimetypes, time
 from django.conf import settings
 from futuUpload.models import Zip
 from futuUpload.forms import PasswordForm
@@ -38,6 +38,7 @@ def upload(request, folder):
 				try:
 					makedirs(dir)
 				except:
+					time.sleep(1)
 					if not path.exists(dir):
 						print 'Temporary path could not be created.'
 						return HttpResponseServerError
