@@ -17,16 +17,21 @@
 <script>
 {% block headscript %}
 $(function(){
+
+	
 		
 	//Create an individual foldername for the files
 	var foldername = new Date().getTime();
 	foldername += Math.floor(Math.random()*99);
+
+	//The url where the forms are posted
+	var uploadURL = '/futushare/'+foldername+'/';
 	
 	//Code for the upload form's content
 	var newForm = '<input type="file" multiple name="file" />';
 	
-	//Model for the file
-	var File = Backbone.Model.extend({
+	//Model for the file (will be extended with different files)
+	var FutuFile = Backbone.Model.extend({
 		url: '/foo/',
 		
 		initialize: function(){
@@ -35,7 +40,6 @@ $(function(){
 		},
 		
 		save : function(attrs, options) {
-			this.trigger('save');
 			return this;
 		},
 		
@@ -44,6 +48,41 @@ $(function(){
 			this.trigger('remove');			
 			return this;
 		}
+	});
+
+	//A file that will be uploaded through a form
+	var RegularFile = FutuFile.extend({
+		save : function(attrs, options) {
+			this.trigger('save');
+			return this;
+		},
+				
+	});
+
+	//A file that will be uploaded using xhr
+	var DroppedFile = FutuFile.extend({
+		form : null,
+
+		initialize: function(file){
+			FutuFile.prototype.initialize.call(this);
+			_.bindAll(this, 'save', 'destroy');
+			this.form = new FormData();
+			this.form.append(file.name, file);
+			this.set({'filename' : file.name});
+		},
+
+		save : function(attrs, options) {
+			var xhr = new XMLHttpRequest();
+  			xhr.open('POST', uploadURL, true);
+			var that = this;
+  			xhr.onload = function(e) {
+				that.trigger('xhrDone', this.responseText);
+			};
+			xhr.send(this.form);
+			this.trigger('uploading');
+			return this;
+		}
+
 	});
 	
 	//Collection of files
@@ -61,20 +100,26 @@ $(function(){
 		},
 		
 		initialize: function(){
-			_.bindAll(this, 'render', 'removeFile', 'remove', 'showName', 'uploadFile');
+			_.bindAll(this, 'render', 'removeFile', 'remove', 'showName', 'uploadFile', 'uploading', 'showFilename', 'setCompletedUpload');
 			this.el = $(this.el);
 			
 			//The name for the iframe assisciated with this form
 			var iframeName = 'up-iframe-' + (new Date()).getTime();
 			
-			this.el.attr('action', '/futushare/'+foldername+'/');
+			//Form attributes
+			this.el.attr('action', uploadURL);
 			this.el.attr('enctype', 'multipart/form-data');
 			this.el.attr('method', 'POST');
 			this.el.attr('target', iframeName);
 			
+			//Binding events
 			this.model.bind('save', this.uploadFile);
 			this.model.bind('remove', this.remove);
-
+			this.model.bind('newfile', this.showName);
+			this.model.bind('uploading', this.uploading);
+			this.model.bind('xhrDone', this.setCompletedUpload);
+			
+			//Create the target iframe
 			this.targetIframe = $('<iframe name="' + iframeName + '" style="display: none;"></iframe>');
 	
 			//Add the iframe to the DOM
@@ -82,7 +127,17 @@ $(function(){
 		},
 		
 		render: function(){
-			$(this.el).html(newForm);
+			var fileName = this.model.get('filename');
+			//Check to see if this is an xhr upload or a traditinal form
+			if (fileName != undefined){
+				this.showFilename(fileName);
+			} else {
+				this.el.html(newForm);
+			}
+		},
+
+		showFilename: function(fileName){
+			this.el.prepend('<span class="filename">'+fileName+' </span><img src="{% get_static_prefix %}img/delete.png" class="file-icon" alt="remove">');
 		},
 		
 		removeFile: function(){
@@ -94,14 +149,20 @@ $(function(){
 		showName: function(){
 			var filePath =  this.el.find('input:file').val();
 			var fileName = filePath.replace('C:\\fakepath\\', '');
+			
 			this.el.find('input:file').hide();
-			this.el.prepend('<span class="filename">'+fileName+' </span><img src="{% get_static_prefix %}img/delete.png" class="file-icon" alt="remove">');
+			this.showFilename(fileName);
+			
+		},
+
+		uploading: function(){
+			this.el.find('img').remove();
+			this.el.append('<img class="file-icon" src="{% get_static_prefix %}img/loading.gif" alt="loading">')
 		},
 		
 		uploadFile: function(){
 			
-			this.el.find('img').remove();
-			this.el.append('<img class="file-icon" src="{% get_static_prefix %}img/loading.gif" alt="loading">')
+			this.uploading();
 			
 			var that = this;
 			
@@ -110,30 +171,34 @@ $(function(){
 				
 				//Get the status from the iframe
 				var status = $(this).contents().text();
-				
-				if (status != ''){
-					//Clear old iamges
-					that.el.find('img').remove();
-					
-					if (status == 'DONE') {
-						//Add done icon
-						that.el.append('<img class="file-icon" src="{% get_static_prefix %}img/check.png" alt="done">')
-				
-					} else {				
-						//Add warning icon
-						that.el.append('<img class="file-icon" src="{% get_static_prefix %}img/alert.png" alt="alert">\
-								<span> There was an error with the upload: '+status+'</span>');
-						
-						that.model.trigger('fileError');
-					}
-					
-					that.model.trigger('fileUploaded');
-				}
-				
+
+				that.setCompletedUpload(status);
+	
 			});
 			
 			this.el.submit(); //Submit the form
 			
+		},
+
+		setCompletedUpload: function(status){
+			if (status != ''){
+				//Clear old iamges
+				this.el.find('img').remove();
+				
+				if (status == 'DONE') {
+					//Add done icon
+					this.el.append('<img class="file-icon" src="{% get_static_prefix %}img/check.png" alt="done">')
+			
+				} else {				
+					//Add warning icon
+					this.el.append('<img class="file-icon" src="{% get_static_prefix %}img/alert.png" alt="alert">\
+							<span> There was an error with the upload: '+status+'</span>');
+					
+					this.model.trigger('fileError');
+				}
+				
+				this.model.trigger('fileUploaded');
+			}
 		}
 		
 	});
@@ -165,6 +230,7 @@ $(function(){
 			myFileView.render();
 			this.el.append(myFileView.el);
 			
+			//If there is something to upload, enable the upload button
 			if (this.collection.length > 1){
 				$("#forms-wrapper button").removeAttr('disabled');				
 			}
@@ -172,12 +238,12 @@ $(function(){
 		
 		//Add a new model to the collection
 		addNewFile: function(){
-			this.collection.add([new File()]);
+			this.collection.add([new RegularFile()]);
 		},
 		
-		//Check that there is always at least one form
+		//Check that there is always an empty form
 		checkNoForms: function(){
-			if (this.collection.length == 0) {
+			if (this.collection.length == 0 || this.collection.last().get('filename') != undefined) {
 				this.addNewFile();	
 			}
 		},
@@ -189,37 +255,39 @@ $(function(){
 				return;
 			}
 			
-			//Hide the upload button so users cant click again
+			//Hide the upload button so users can't click again
 			this.el.find('button#upload').hide(); 
-			
-			//Remove the last model that is the empty form
-			this.collection.last().destroy();
-			
+
+			//Hide the empty form
+			this.el.find('form:last').hide();
 			
 			var uploadedFiles = 0;
-			var totalFiles = this.collection.length;
+			//This is -1, because we don't want to upload the empty model at the end
+			var totalFiles = this.collection.length-1;
 			var that = this;
 			var errors = 0;
 			 
 			//Submit the forms individually by saving the models
 			this.collection.each(function(file){
-				
-				//Set the callback for a finished upload
-				file.bind('fileUploaded', function() {
-					uploadedFiles++;
+				//If this is not the last (empty) model
+				if (file != that.collection.last()){
+					//Set the callback for a finished upload
+					file.bind('fileUploaded', function() {
+						uploadedFiles++;
 					
-					//Check if all the uploads are done
-					if (uploadedFiles == totalFiles){
-						that.uploadsDone(errors);
-					}
-				});
+						//Check if all the uploads are done
+						if (uploadedFiles == totalFiles){
+							that.uploadsDone(errors);
+						}
+					});
 				
-				//Set the callback for errors in the upload
-				file.bind('fileError', function(){
-					errors++;
-				});
+					//Set the callback for errors in the upload
+					file.bind('fileError', function(){
+						errors++;
+					});
 				
-				 file.save();  //Save the model
+					 file.save();  //Save the model
+				}
 			 });
 		},
 		
@@ -229,8 +297,8 @@ $(function(){
 			
 			//If there are errors
 			if (errors > 0) {
-				//If there was more than one file
-				if (this.collection.length > 1 ){
+				//If there was more than one file (don't forget the empty form)
+				if (this.collection.length > 2 ){
 					var errText = $('<div><p>There was an error with one or more files.<br>'
 								+'Do you want to zip the rest of the files anyway?</p>'
 								+'<button class="yes">Yes</button><button class="no">No</button></div>');
@@ -278,6 +346,69 @@ $(function(){
 	var myListView = new FileListView({
 		collection: myFileList
 	});
+
+
+	//Function for handling the drop event
+	function handleDrop(evt){
+		evt.stopPropagation();
+  		evt.preventDefault();
+
+		$('#status').append('<img class="file-icon" src="{% get_static_prefix %}img/loading.gif" alt="Loading...">');
+
+		//The files that were dropped
+		var files = evt.dataTransfer.files;
+
+		if (files.length > 0){
+
+			//Iterate over the array of files
+			for (var i = 0, fi; fi = files[i]; i++) {
+	
+				//Check the filesize locally
+				if (fi.size < 367001600){
+					//Add a new DroppedFile
+     					myFileList.add(new DroppedFile(fi));
+	
+					//Remove the empty form that was the last model before we added this new file
+					//A new, empty, form will be added to the end automatically
+					var secondToLast = myFileList.length-2;
+					myFileList.at(secondToLast).destroy();
+				} else {
+					$('#status').append('<p>The file '+fi.name+' was too large.</p>');
+				}
+                	}
+		}
+		$('#status img').remove();
+
+	}
+
+	//Function for preventing the default action of drag 'n drop
+	function prevent(evt){
+		evt.stopPropagation();
+    		evt.preventDefault();
+
+		//Show a hint when dragging
+		$('#hovering').show();
+		$('#hovering').text('Release mouse to drop files.');
+		$('#hovering').fadeOut(4000);
+	}
+
+	//TODO: Make hilighting of the drop area work
+	function addHilight(evt){
+		evt.stopPropagation();
+    		evt.preventDefault();
+	}
+
+	function removeHilight(evt){
+		evt.stopPropagation();
+    		evt.preventDefault();
+	}
+
+	//Select the drop area and add some listeners for the events
+	var dragnDrop = document.getElementsByTagName('html')[0];
+	dragnDrop.addEventListener('dragenter', addHilight, false);
+	dragnDrop.addEventListener('dragleave', removeHilight, false);
+	dragnDrop.addEventListener('dragover', prevent, false);
+	dragnDrop.addEventListener('drop', handleDrop, false);
 	
 	
 });
@@ -300,16 +431,21 @@ $(function(){
 			<h2>Upload</h2>
 
 			<div id="content-text">
-				<p>This page allows you to upload files and creates a password-protected zipfiles out of them. 
+				<p>This page allows you to upload files and creates a password-protected zip-files out of them. 
 				The .zip will be automatically created after uploading the files.
 				Maximum file size is 300MB. 
-				</p>		
+				</p>
+				<p>Drop files anywhare on the page to add them to the zip-file. (Not supported on older browsers and IE)
+				</p>	
 			</div>
 
 			<h3>Files:</h3>
 			<div id="forms-wrapper">
 				<button id="upload" disabled="disabled">Upload</button>
 			</div>
+
+			<div id="status"></div>
+			<div id="hovering"></div>
 	
 {% endblock content %}
 		</div>
