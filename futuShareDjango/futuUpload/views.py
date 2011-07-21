@@ -35,7 +35,12 @@ def upload(request, folder):
 			# Create folder
 			dir = upload_dir + folder + '/'
 			if not path.exists(dir):
-				makedirs(dir)
+				try:
+					makedirs(dir)
+				except:
+					if not path.exists(dir):
+						print 'Temporary path could not be created.'
+						return HttpResponseServerError
 
 			# Save to folder
 			destination_path = dir + uploaded_file.name
