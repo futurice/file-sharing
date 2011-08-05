@@ -12,3 +12,4 @@ devurls.*
 env_settings.*
 .sass*
 *.db
+*.idea

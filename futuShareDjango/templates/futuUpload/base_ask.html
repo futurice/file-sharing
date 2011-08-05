@@ -6,10 +6,13 @@
 {% block headscript %}
 
 $(function(){
-  $('form').submit(function(event) {
-    $('#status').removeClass();
-    $('#status').text('');
-  });
+  
+$("#download").click(function(){
+	$('#status').removeClass();
+    	$('#status').text('');
+	$('form').submit();
+});
+
 });
  
 {% endblock %}
@@ -19,7 +22,7 @@ $(function(){
 <form action="" id="passPrompt" method="POST">
 {% csrf_token %}
 {{ form.as_p }}
-<input type="submit" value="Download">
+<div id="download" class="smallbutton">Download</div>
 </form>
 <div id="status" class="error">{{ status }}</div>
 

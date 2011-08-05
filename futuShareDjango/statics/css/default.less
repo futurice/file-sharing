@@ -1,44 +1,46 @@
 /* Variables */
 
-@futugreen: #3b6913;
+/* Colors */
 @white: #ffffff;
-@dirty-white: #f9f9f9;
-@black: #000000;
 @red: red;
-@green: green;
+@green: #519202;
+@grey: #c5bbb9;
 
-@side: bottom;
-@radius: 10px;
+/* Font Sizes */
+@huge: 2.3em;
+@big: 2em;
+@norm: 1.6em;
+@small: 1.1em;
 
-.rounded-bottom {
-  @radius: 20px;
+/* Buttons */
+@choose-padding: 22px;
+@sendpadding: 9px;
 
-  border-bottom-right-radius: @radius;
-  border-bottom-left-radius: @radius;
+@recieve-div-width: 430px;
 
-}
+/* --- CHANGE URLS TO FIT PRODUCTION --- */
+@bigbutton: url("/futushare/img/choose_files_button.png");
+@bigbuttonhover: url("/futushare/img/choose_files_button_mo.png");
+@smallbutton: url("/futushare/img/downloadsend.png");
+@smallbuttonhover: url("/futushare/img/downloadsend_mo.png");
+@arrow: url("/futushare/img/upload_button.png");
+
 
 /* -- General Text Styles ------------------------------- */
 html, body {
 	font-size: 12px;
-	font-family: Helvetica, Arial, sans-serif;
-	background-color: @dirty-white;
+	font-family: Verdana, Geneva, sans-serif;
+	background-color: @white;
+	color: @green;
 }
 
-a { 
-	color: @black; 
-}
-a:hover { 
-	text-decoration: underline; 
+a {
+	color: @green;
+	text-decoration: none;
 }
 
-h1 {
-	margin: 0;
-}
-
-
-h2 { 
-
+a:hover {
+	text-decoration: underline;
 }
 
 /* -- Layout ------------------------------- */
@@ -47,123 +49,200 @@ h2 {
 	background-color: @white;
 	margin: 0 auto 0 auto;
 	width: 700px;
-	border: solid 1px lighten(@black, 50%);
-	border-top: none;
-	.rounded-bottom;
-	box-shadow: 3px 3px 10px lighten(@black, 50%);
 }
 
 #header {
-	color: @black;
-	margin: 0;
-	background: @white;
-	height: 125px;
+	margin: 40px auto 40px auto;
 	position: relative;
-	border-bottom: solid 1px lighten(@black, 50%);
-		
-	h1 {
-		font-size: 40px;
-		font-weight: 500;
-		position: absolute;
-		left: 50px;
-		bottom: 10px;
-		
-		a {
-			color: @black;
-			text-decoration: none;
-		}
-		
-		a:link {color:@black;text-decoration: none;}
-		a:visited {color:@black;text-decoration: none;}
-		a:hover {color:@black;text-decoration: none;}
-		a:active
-		
+}
+
+.steps {
+	display: table;
+	clear: both;
+}
+
+.leftcolumn {
+	float:left;
+	padding: 0 0 0 40px;
+}
+
+.rightcolumn {
+	float:left;
+	padding: 0 0 0 50px;
+	position: relative;
+}
+
+#chooseDiv {
+	span {
+		display: block;
 	}
 	
-	#logo {
-		position: absolute;
-		right: 20px;
-		top: 10px;
+	#chooseText{	
+		font-size: @huge;
 	}
 }
 
+.bigbutton {
+	background-image: @bigbutton;
+	width: 478px;
+	height: 104px;
+	color: @white;
+	text-align: center;
+	margin: 0;
+	cursor: pointer;
+}
 
-#content { 
-	margin: 20px;
-	padding: 5px;
-	
-	h2 {
-		font-weight: 100;
-		font-size: 2.0em;
-	}
-	
-	#forms-wrapper {
-	position: relative;
-	margin-bottom: 25px;
-		#upload {
-			margin: 30px auto 10px auto;
-			position: absolute;
-			bottom: -40px;
-			right: 30px;			
+.hover {
+	background-image: @bigbuttonhover;
+}
+
+.smallbutton {
+	background-image: @smallbutton;
+	width: 266px;
+	color: @white;
+	text-align: center;
+	margin: 0;
+	cursor: pointer;
+	padding-top: @sendpadding;
+	height: 55-@sendpadding;
+	font-size: @big;
+}
+
+.smallbutton:hover {
+	background-image: @smallbuttonhover;
+}
+
+.choosePadding {
+	padding-top: @choose-padding;
+	height: 104px - @choose-padding;
+}
+
+#maxSize {
+	margin-top: 7px;
+}
+
+#drop-area {
+	width: 472px;
+	height: 74px;
+	margin: 20px 0 0 3px;
+	border: 1px dashed @green;
+	color: @green;
+	text-align: center;
+	font-size: @big;
+	padding: 30px 0 0 0;
+}
+
+#uploadDiv {
+	width: 319px;	
+}
+
+.arrow {
+	padding: 47px 0 0 110px;
+	background-image: @arrow;
+	color: @white;
+	height: 82px;
+	cursor: pointer;
+}
+
+#uploadText {
+	font-size: @big;
+}
+
+#uploadStatus {
+	font-size: @norm;
+	color: @grey;
+}
+
+
+#recieveDiv {
+	width: @recieve-div-width;
+}
+
+#recieveText {
+	font-size: @big;
+}
+
+.spacer {
+	height: 30px;
+}
+
+/* Full of hacks to position the file browser on top of the big green button */
+.emptyForm {
+
+	div {
+		height: 104px;
+		width: 478px;
+		overflow: hidden;
+		position: absolute;
+		left: 50px;
+		top: 0;
+		
+		input {
+		   	height: 104px;
+	     		opacity: 0;
+			z-index: 10;
+			width: 100%;
+			font-size: 100px;
 		}
 	}
-	
-	#content-text {
-		width: 250px;
-	}
+}
+
+#forms-wrapper {
+	padding: 10px 0;
 }
 
 #send-form-wrapper {
+	padding: 20px 0 10px 0;
+	font-size: @small;
+	display: none;
+}
+
+#email-and-phone {
+	font-size: @small;
 	text-align: right;
-	padding: 0 200px 20px 0;
-	
-	h2 {
-	
+	padding: 0 30px 0 0;
+
+	.smallspacer {
+		height: 8px;
+	}	
+
+	#labels {
+		float: left;
+		padding: 0 10px 0 0;
+		span {
+			display: block;
+			padding: 3px;
+		}
 	}
-	
-	span {
-		font-size: 0.9em;
-	}
-	
-	.eg {
-		font-size: 0.8em;
-	}
-	
-	p {
-		font-size: 1.1em;
+
+	#inputs {
+		
+		float: left;
 	}
 }
 
-/* -- General Classes -- */
-
-.file-icon {
-	vertical-align: middle;
-}
-
-.ziplink {
-	font-size: 2.0em;
-}
-
-.password {
-	font-size: 2.0em;
-}
-
-.passnlink {
-	text-align: left;
-	font-weight: 100;
-	
-	.passtext {
-		padding: 10px 0 30px 0;
-	}
+.filename {
+	color: @green;
+	font-size: @norm;
+	padding-left: 15px;
 }
 
 .securityInfo {
-	font-size: 0.9em;
-	width: 250px;
+	font-size: @small;
+	color: darken(@grey, 30%);
+	clear: both;
+	
+	ul {
+		padding: 25px 0 0 14px;
+	}
 }
 
 .italic {
 	font-style: italic;
+}
+
+.bold {
+	font-weight: bold;
 }
 
 .error {
@@ -172,8 +251,4 @@ h2 {
 
 .success {
 	color: @green;
-}
-
-.bigger {
-	font-size: 1.3em;
 }
