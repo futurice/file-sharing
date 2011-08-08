@@ -75,7 +75,6 @@ def zip(request, folder):
 		p = subprocess.Popen(["pwgen", str(N), "1"], stdout=subprocess.PIPE)
 		(password, _) = p.communicate()
 		password = password.replace("\n", "")
-
 	
 		#Generate list of files
 		try:
@@ -86,14 +85,20 @@ def zip(request, folder):
 			return HttpResponseRedirect('/');
 	
 		#Path for the zip	
-		path = zip_dir + folder + '.zip'
+		zippath = zip_dir + folder + '.zip'
+
+		#Check for a zip with the same name so we can't add to existing zips
+		if path.exists(zippath):
+			print 'Tried to add to existing zip file'
+			return HttpResponseServerError()
+
 
 		#Zip it! using 7zip
-		#arguments = ['/usr/bin/7z', 'a', '-p'+password, '-y', path] + files
+		#arguments = ['/usr/bin/7z', 'a', '-p'+password, '-y', zippath] + files
 		#zip7z = subprocess.call(arguments)
 
 		#Zip it! using zip
-		arguments = ['/usr/bin/zip', '-j', '-y', path] + files
+		arguments = ['/usr/bin/zip', '-j', '-y', zippath] + files
 		zip7z = subprocess.call(arguments)
 
 		#Remove the individual files
