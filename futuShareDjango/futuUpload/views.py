@@ -141,7 +141,8 @@ def send(request):
 		if not email_re.match(email):
 			return HttpResponse('BADEMAIL');
 	
-		if re.match("\+(\d+)$", phone) == None:
+		#if re.match("\+(\d+)$", phone) == None:
+		if re.match("00(\d+)$", phone) == None:
 			return HttpResponse('BADPHONE');
 	
 	

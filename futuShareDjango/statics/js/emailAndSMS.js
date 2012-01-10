@@ -19,7 +19,7 @@ $("#sendButton").click(function(){
 		formstatus.append('<p class="error">No email address.</p>');
 		that.removeAttr('disabled'); //Enable sending again
 
-	} else if (form.find("input#sms").val() == '+358'
+	} else if (form.find("input#sms").val() == '00358'
 		|| form.find("input#sms").val() == ''){
 		formstatus.append('<p class="error">No phone number.</p>');
 		that.removeAttr('disabled'); //Enable sending again
@@ -39,11 +39,11 @@ $("#sendButton").click(function(){
   				if (response == 'DONE'){
   					formstatus.html('<p>The messages were sent successfully.</p>');
 					$('#email').val('');
-					$('#sms').val('+358');
+					$('#sms').val('00358');
   				} else if (response == 'BADEMAIL'){
   					formstatus.prepend('<p class="error">There was an error in the email address. Nothing was sent.</p>');
   				} else if (response == 'BADPHONE'){
-  					formstatus.prepend('<p class="error">There was an error in the phone number. Nothing was sent.</p>');
+  					formstatus.prepend('<p class="error">There was an error in the phone number. Make sure you use 00 instead of +. Nothing was sent.</p>');
   				} else if (response == 'SMSFAIL'){
   					formstatus.prepend('<p class="error">There was an error when sending the SMS. Nothing was sent.</p>');
   				} else if (response == 'EMAILFAIL'){
