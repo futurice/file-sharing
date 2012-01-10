@@ -42,7 +42,6 @@ USE_I18N = True
 
 # Set the project path for use later
 PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
-#SETTINGS_DIR = os.path.dirname(os.path.realpath(__file__))
 
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale
@@ -58,7 +57,7 @@ MEDIA_ROOT = ''
 MEDIA_URL = ''
 
 #Where to collect the static files on command: collectstatic
-STATIC_ROOT = "/tmp/"
+STATIC_ROOT = PROJECT_PATH+"/static/"
 
 #Where to look for static files
 STATICFILES_DIRS = (
@@ -109,7 +108,13 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'futuShareDjango.futuUpload',
+    'paging',
+    'indexer',
+    'raven.contrib.django',
 )
+
+SENTRY_KEY = 'js52wjdsoisr78fgs1f0g415safg1'
+SENTRY_SERVERS = ['https://sentry.futurice.com/sentry/store/']
 
 EMAIL_HOST = 'smtpgw.futurice.com'
 
