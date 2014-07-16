@@ -1,7 +1,5 @@
-^futuShare/upload/*
-
-
 syntax: glob
+
 *.pydevproject
 *.pyc
 *.project
