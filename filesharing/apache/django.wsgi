@@ -4,7 +4,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'futuShareDjango.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'filesharing.settings'
 
 
 sys.stdout = sys.stderr # Prevent crashes upon print

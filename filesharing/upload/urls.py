@@ -1,6 +1,6 @@
 import views
 
-urlpatterns = ('futuUpload.views',
+urlpatterns = ('upload.views',
    # Root view
     (r'^$', 'index'),
 

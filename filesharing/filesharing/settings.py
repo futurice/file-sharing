@@ -1,11 +1,11 @@
-# Django settings for futuShareDjango project.
+# Django settings for filesharing project.
 import os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    # ('Oskar Ehnstrom', 'oskar.ehnstrom@futurice.com'),
+    # ('name', 'email address'),
 )
 
 MANAGERS = ADMINS
@@ -41,7 +41,7 @@ SITE_ID = 1
 USE_I18N = True
 
 # Set the project path for use later
-PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
+PROJECT_PATH = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
 
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale
@@ -61,7 +61,6 @@ STATIC_ROOT = PROJECT_PATH+"/static/"
 
 #Where to look for static files
 STATICFILES_DIRS = (
-	PROJECT_PATH + "/statics/",
 )
 
 #Where the static files are in production
@@ -91,7 +90,7 @@ MIDDLEWARE_CLASSES = (
     #'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = 'futuShareDjango.urls'
+ROOT_URLCONF = 'filesharing.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -107,14 +106,8 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'futuShareDjango.futuUpload',
-    'paging',
-    'indexer',
-    'raven.contrib.django',
+    'upload',
 )
-
-SENTRY_KEY = 'js52wjdsoisr78fgs1f0g415safg1'
-SENTRY_SERVERS = ['https://sentry.futurice.com/sentry/store/']
 
 EMAIL_HOST = 'smtpgw.futurice.com'
 
@@ -141,12 +134,7 @@ SERVER_ROOT_ADDRESS = 'https://share.futurice.com/futushare/'
 #Length of the password
 PASSWORD_LENGTH = 8
 
-try :
-
+try:
     from env_settings import *
-
 except ImportError as e:
-
     print "WARNING : settings for the development environment couldn't be imported because:", e
-
-

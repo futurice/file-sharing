@@ -1,11 +1,11 @@
 #!/bin/sh
 #
-# Add this file to crontab to start FutuSMS at boot:
-# @reboot /home/futusms/futusms/bin/futusms.sh
+# Add this file to crontab to start the fastcgi server at boot:
+# @reboot /path/to/this/file/restart.sh
 
-PROJDIR="/home/share/futurice_share/futuShareDjango"
-PIDFILE="$PROJDIR/futushare.pid"
-SOCKET="$PROJDIR/futushare.sock"
+PROJDIR="/path/to/project/filesharing"
+PIDFILE="$PROJDIR/filesharing.pid"
+SOCKET="$PROJDIR/filesharing.sock"
 OUTLOG="$PROJDIR/logs/access.log"
 ERRLOG="$PROJDIR/logs/error.log"
 

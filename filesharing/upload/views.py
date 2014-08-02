@@ -1,12 +1,12 @@
 from os import path, makedirs, listdir
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseServerError, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
-from django.core.validators import email_re
+from django.core.validators import validate_email
 from django.core.mail import send_mail
 import subprocess, random, string, urllib2, smtplib, re, shutil, mimetypes, time
 from django.conf import settings
-from futuUpload.models import Zip
-from futuUpload.forms import PasswordForm
+from upload.models import Zip
+from upload.forms import PasswordForm
 from django.forms.widgets import HiddenInput
 from django.template import RequestContext
 
@@ -19,7 +19,7 @@ zip_dir = settings.FREE_ZIP_DIR
 
 # Renders the frontpage
 def index(request):
-	return render_to_response('futuUpload/base.html')
+	return render_to_response('upload/base.html')
 
 
 # This method saves a file posted to it in the directory specified in the settings
@@ -109,7 +109,7 @@ def zip(request, folder):
 				z = Zip(filename=folder+'.zip', password=password)
 				z.save()
 		
-				return render_to_response('futuUpload/base_done.html', {'file': folder + '.zip',
+				return render_to_response('upload/base_done.html', {'file': folder + '.zip',
 							'password': password, 'link': settings.SERVER_ROOT_ADDRESS + 'ask/' + folder + '.zip'})
 		
 		else:
@@ -138,7 +138,7 @@ def send(request):
 		filename = post.__getitem__('file')		
 			
 		#Validate mail and phone
-		if not email_re.match(email):
+		if not validate_email(email):
 			return HttpResponse('BADEMAIL');
 	
 		#if re.match("\+(\d+)$", phone) == None:
@@ -204,17 +204,17 @@ def passwordCheck(request, requestedFilename):
         					response['Content-Disposition'] = 'attachment; filename=' + fileName     
        	
     				except IOError:
-        				return render_to_response('futuUpload/base_ask.html', {'form': form, 'status' : 'There was an error reading the file.'}, context_instance=RequestContext(request))
+        				return render_to_response('upload/base_ask.html', {'form': form, 'status' : 'There was an error reading the file.'}, context_instance=RequestContext(request))
 	
     				return response
 
 			else:
-				return render_to_response('futuUpload/base_ask.html', {'form': form, 'status' : 'Wrong password.'}, context_instance=RequestContext(request))
+				return render_to_response('upload/base_ask.html', {'form': form, 'status' : 'Wrong password.'}, context_instance=RequestContext(request))
 		else:
-			return render_to_response('futuUpload/base_ask.html', {'form': form}, context_instance=RequestContext(request))
+			return render_to_response('upload/base_ask.html', {'form': form}, context_instance=RequestContext(request))
 	
 	#If we're not posting, the password prompt page is shown
 	else:
 		p = get_object_or_404(Zip, filename=requestedFilename)
 		form = PasswordForm(initial={'filename': requestedFilename})
-    		return render_to_response('futuUpload/base_ask.html', {'form': form}, context_instance=RequestContext(request))
+    		return render_to_response('upload/base_ask.html', {'form': form}, context_instance=RequestContext(request))
