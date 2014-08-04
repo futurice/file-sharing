@@ -1,220 +1,207 @@
-from os import path, makedirs, listdir
+from django.conf import settings
+from django.core.mail import send_mail
+from django.core.validators import validate_email
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseServerError, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
-from django.core.validators import validate_email
-from django.core.mail import send_mail
-import subprocess, random, string, urllib2, smtplib, re, shutil, mimetypes, time
-from django.conf import settings
-from upload.models import Zip
-from upload.forms import PasswordForm
-from django.forms.widgets import HiddenInput
 from django.template import RequestContext
-
-#The root folder for the files:
-upload_dir = settings.UPLOAD_DIRECTORY
-
-#Folder to store the zips
-zip_dir = settings.FREE_ZIP_DIR
-
+from os import path, makedirs, listdir
+from upload.forms import PasswordForm
+from upload.models import Zip
+import smtplib
+import subprocess, random, string, urllib2, re, shutil, mimetypes, time
 
 # Renders the frontpage
 def index(request):
-	return render_to_response('upload/base.html')
+    return render_to_response('upload/base.html')
 
 
 # This method saves a file posted to it in the directory specified in the settings
 def upload(request, folder):
-	if request.method == 'POST':
-	
-		for field_name in request.FILES:
-			uploaded_file = request.FILES[field_name]
-			
-			if uploaded_file.size > settings.MAX_UPLOAD_FILE_SIZE:
-				return HttpResponse('File was too big.')
+    if request.method == 'POST':
+        for field_name in request.FILES:
+            uploaded_file = request.FILES[field_name]
 
-			# Create folder
-			dir = upload_dir + folder + '/'
-			if not path.exists(dir):
-				try:
-					makedirs(dir)
-				except:
-					time.sleep(1)
-					if not path.exists(dir):
-						print 'Temporary path could not be created.'
-						return HttpResponseServerError
+            if uploaded_file.size > settings.MAX_UPLOAD_FILE_SIZE:
+                return HttpResponse('File was too big.')
 
-			# Save to folder
-			destination_path = dir + uploaded_file.name
-			destination = open(destination_path, 'wb+')
-			for chunk in uploaded_file.chunks():
-				destination.write(chunk)
-			destination.close()
-			
-		return HttpResponse('DONE')
-	
-	else:
-		return HttpResponseNotFound()
-	
-	#Redirect the user to the address specified in ZIP_URL
-	#This is used for old password protected zip files
-def getzip(request, zip):
-	return HttpResponseRedirect(settings.ZIP_URL + zip)
-	
-	
-	#Zip the files in the folder specified in the arguments and save
-	#the zip to the path defined in the settings
-def zip(request, folder):
-	
-	if request.method == 'POST':
-		N = settings.PASSWORD_LENGTH
-		
-		#Hard to remember password
-		#password = ''.join(random.choice(string.ascii_letters + string.digits) for x in range(N))
+            # Create folder
+            dir = settings.UPLOAD_DIRECTORY + folder + '/'
+            if not path.exists(dir):
+                try:
+                    makedirs(dir)
+                except:
+                    time.sleep(1)
+                    if not path.exists(dir):
+                        print 'Temporary path could not be created.'
+                        return HttpResponseServerError
 
-		#Easier to remember password
-		p = subprocess.Popen(["pwgen", str(N), "1"], stdout=subprocess.PIPE)
-		(password, _) = p.communicate()
-		password = password.replace("\n", "")
-	
-		#Generate list of files
-		try:
-			files = []
-			for file in listdir(upload_dir + folder + '/'):
-				files.append(upload_dir + folder + '/' + file)
-		except:
-			return HttpResponseRedirect('/');
-	
-		#Path for the zip	
-		zippath = zip_dir + folder + '.zip'
+            # Save to folder
+            destination_path = dir + uploaded_file.name
+            destination = open(destination_path, 'wb+')
+            for chunk in uploaded_file.chunks():
+                destination.write(chunk)
+            destination.close()
+        return HttpResponse('DONE')
+    else:
+        return HttpResponseNotFound()
 
-		#Check for a zip with the same name so we can't add to existing zips
-		if path.exists(zippath):
-			print 'Tried to add to existing zip file'
-			return HttpResponseServerError()
+def getzip(request, zip_file):
+    """ Redirect the user to the address specified in ZIP_URL
+        This is used for old password protected zip files """
+    return HttpResponseRedirect(settings.ZIP_URL + zip_file)
 
 
-		#Zip it! using 7zip
-		#arguments = ['/usr/bin/7z', 'a', '-p'+password, '-y', zippath] + files
-		#zip7z = subprocess.call(arguments)
+def zip_files(request, folder):
+    """ Zip the files in the folder specified in the arguments and save
+        the zip to the path defined in the settings """
 
-		#Zip it! using zip
-		arguments = ['/usr/bin/zip', '-j', '-y', zippath] + files
-		zip7z = subprocess.call(arguments)
+    if request.method == 'POST':
+        password_length = settings.PASSWORD_LENGTH
 
-		#Remove the individual files
-		shutil.rmtree(upload_dir + folder + '/')
+        # Hard to remember password
+        #password = ''.join(random.choice(string.ascii_letters + string.digits) for x in range(N))
 
-		#Was the zipping successful?
-		if not zip7z:
-				z = Zip(filename=folder+'.zip', password=password)
-				z.save()
-		
-				return render_to_response('upload/base_done.html', {'file': folder + '.zip',
-							'password': password, 'link': settings.SERVER_ROOT_ADDRESS + 'ask/' + folder + '.zip'})
-		
-		else:
-			print 'Something went wrong while trying to zip the files. Make sure zip is installed and working.'
-			print 'zip exit code: %d' % zip7z
-			print " ".join(arguments)
-			
-			return HttpResponseServerError()
-		
-	else:
-		#If you try something other than POST, you are redirected to the front page
-		return HttpResponseRedirect('/');
-	
+        # Easier to remember password
+        proc = subprocess.Popen(["pwgen", str(password_length), "1"], stdout=subprocess.PIPE)
+        (password, _) = proc.communicate()
+        password = password.strip()
 
-	#Send an email and an sms to the specified addresses
+        # Generate list of files
+        try:
+            files = []
+            for filename in listdir(settings.UPLOAD_DIRECTORY + folder + '/'):
+                files.append(settings.UPLOAD_DIRECTORY + folder + '/' + filename)
+        except IOError:
+            return HttpResponseRedirect('/')
+
+        #Path for the zip
+        zippath = settings.FREE_ZIP_DIR + folder + '.zip'
+
+        #Check for a zip with the same name so we can't add to existing zips
+        if path.exists(zippath):
+            print 'Tried to add to existing zip file'
+            return HttpResponseServerError()
+
+
+        #Zip it! using 7zip
+        #arguments = ['/usr/bin/7z', 'a', '-p'+password, '-y', zippath] + files
+        #zip7z = subprocess.call(arguments)
+
+        #Zip it! using zip
+        arguments = ['/usr/bin/zip', '-j', '-y', zippath] + files
+        zip7z = subprocess.call(arguments)
+
+        #Remove the individual files
+        shutil.rmtree(settings.UPLOAD_DIRECTORY + folder + '/')
+
+        #Was the zipping successful?
+        if not zip7z:
+            pw_zip = Zip(filename=folder+'.zip', password=password)
+            pw_zip.save()
+
+            return render_to_response('upload/base_done.html', {'file': folder + '.zip',
+                     'password': password, 'link': settings.SERVER_ROOT_ADDRESS + 'ask/' + folder + '.zip'})
+
+        else:
+            print 'Something went wrong while trying to zip the files. Make sure zip is installed and working.'
+            print 'zip exit code: %d' % zip7z
+            print " ".join(arguments)
+
+            return HttpResponseServerError()
+
+    else:
+        #If you try something other than POST, you are redirected to the front page
+        return HttpResponseRedirect('/')
+
+
 def send(request):
+    """ Send an email and an sms to the specified addresses """
 
-	if request.method == 'POST':
-		
-		post = request.POST;
+    if request.method == 'POST':
+        post = request.POST
 
-		#Get the variables from the post
-		email = post.__getitem__('email')
-		phone = post.__getitem__('phone')
-		password = post.__getitem__('password')
-		filename = post.__getitem__('file')		
-			
-		#Validate mail and phone
-		if not validate_email(email):
-			return HttpResponse('BADEMAIL');
-	
-		#if re.match("\+(\d+)$", phone) == None:
-		if re.match("00(\d+)$", phone) == None:
-			return HttpResponse('BADPHONE');
-	
-	
-		#Send SMS
-		sms = urllib2.quote('Your password is "' + password + '". You should receive a mail, with the link to the file, shortly. Br, Futurice')
-	
-		smsurl = 'https://backupmaster2.futurice.com:13013/cgi-bin/sendsms?username=kanneluser&password=df89asj89I23hvcxSDasdf3298jvkjc839&to=' + phone + '&text=' + sms
+        #Get the variables from the post
+        email = post.__getitem__('email')
+        phone = post.__getitem__('phone')
+        password = post.__getitem__('password')
+        filename = post.__getitem__('file')
 
-		response = urllib2.urlopen(smsurl)
-		html = response.read()
-		if (html != '0: Accepted for delivery'):
-			return HttpResponse('SMSFAIL')						
-	
-		#Send Email
-		email_body = 'Hi,\n\nWe have a new file for you:\n' + settings.SERVER_ROOT_ADDRESS + 'ask/' + filename + '\n\nWe have sent the password, for the file, to your mobile.\n\nBr, Futurice'
-	
-		from_addr = 'noreply@futurice.com'
-		subject = 'New file on Futurice file transferring server'
-		reply_addr = 'it@futurice.com'
-	
-		try:
-			send_mail(subject, email_body, from_addr, [email], fail_silently=False)
-		except:
-			return HttpResponse('EMAILFAIL')
-	
-		return HttpResponse('DONE')
-	else:
-		return HttpResponseNotFound()
-	
+        #Validate mail and phone
+        if not validate_email(email):
+            return HttpResponse('BADEMAIL')
 
-def passwordCheck(request, requestedFilename):
+        #if re.match(r"\+(\d+)$", phone) == None:
+        if re.match(r"00(\d+)$", phone) == None:
+            return HttpResponse('BADPHONE')
 
-	#Check if we're posting the password
-	if request.method == 'POST':
-		form = PasswordForm(request.POST)
+        #Send SMS
+        sms = urllib2.quote('Your password is "' + password + '". You should receive a mail, with the link to the file, shortly. Br, Futurice')
 
-		if form.is_valid():
-			
-			#Get the variables from the post
-			requestPass = form.cleaned_data['password']
-			requestFile = form.cleaned_data['filename']
+        smsurl = 'https://backupmaster2.futurice.com:13013/cgi-bin/sendsms?username=kanneluser&password=df89asj89I23hvcxSDasdf3298jvkjc839&to=' + phone + '&text=' + sms
 
-			#If there is no such file, 404
-			f = get_object_or_404(Zip, filename=requestFile)
+        response = urllib2.urlopen(smsurl)
+        html = response.read()
+        if html != '0: Accepted for delivery':
+            return HttpResponse('SMSFAIL')
 
-			#Is the password correct?
-			if f.isCorrectPassword(requestPass):
-			
-				#Serve file
-				mimetypes.init()
-				try:
-        				filePath = settings.FREE_ZIP_DIR + '/' + requestFile
-        				fileSocket = open(filePath,"r")
-        				fileName = path.basename(filePath)
-        				mime_type_guess = mimetypes.guess_type(fileName)
-	
-       					if mime_type_guess is not None:
-            					response = HttpResponse(fileSocket, mimetype=mime_type_guess[0])
-        					response['Content-Disposition'] = 'attachment; filename=' + fileName     
-       	
-    				except IOError:
-        				return render_to_response('upload/base_ask.html', {'form': form, 'status' : 'There was an error reading the file.'}, context_instance=RequestContext(request))
-	
-    				return response
+        #Send Email
+        email_body = 'Hi,\n\nWe have a new file for you:\n' + settings.SERVER_ROOT_ADDRESS + 'ask/' + filename + '\n\nWe have sent the password, for the file, to your mobile.\n\nBr, Futurice'
 
-			else:
-				return render_to_response('upload/base_ask.html', {'form': form, 'status' : 'Wrong password.'}, context_instance=RequestContext(request))
-		else:
-			return render_to_response('upload/base_ask.html', {'form': form}, context_instance=RequestContext(request))
-	
-	#If we're not posting, the password prompt page is shown
-	else:
-		p = get_object_or_404(Zip, filename=requestedFilename)
-		form = PasswordForm(initial={'filename': requestedFilename})
-    		return render_to_response('upload/base_ask.html', {'form': form}, context_instance=RequestContext(request))
+        from_addr = 'noreply@futurice.com'
+        subject = 'New file on Futurice file transferring server'
+
+        try:
+            send_mail(subject, email_body, from_addr, [email], fail_silently=False)
+        except smtplib.SMTPException:
+            return HttpResponse('EMAILFAIL')
+
+        return HttpResponse('DONE')
+    else:
+        return HttpResponseNotFound()
+
+
+def password_check(request, requested_filename):
+
+    # Check if we're posting the password
+    if request.method == 'POST':
+        form = PasswordForm(request.POST)
+
+        if form.is_valid():
+
+            #Get the variables from the post
+            password = form.cleaned_data['password']
+            requested_filename = form.cleaned_data['filename']
+
+            # If there's no such file, return 404
+            f = get_object_or_404(Zip, filename=requested_filename)
+
+            # Is the password correct?
+            if f.is_correct(password):
+
+                # Serve file
+                mimetypes.init()
+                try:
+                    file_path = settings.FREE_ZIP_DIR + '/' + requested_filename
+                    file_socket = open(file_path, "r")
+                    filename = path.basename(file_path)
+                    mime_type_guess = mimetypes.guess_type(filename)
+
+                    if mime_type_guess is not None:
+                        response = HttpResponse(file_socket, mimetype=mime_type_guess[0])
+                        response['Content-Disposition'] = 'attachment; filename=' + filename
+
+                except IOError:
+                    return render_to_response('upload/base_ask.html', {'form': form, 'status' : 'There was an error reading the file.'}, context_instance=RequestContext(request))
+
+                return response
+
+            else:
+                return render_to_response('upload/base_ask.html', {'form': form, 'status' : 'Wrong password.'}, context_instance=RequestContext(request))
+        else:
+            return render_to_response('upload/base_ask.html', {'form': form}, context_instance=RequestContext(request))
+
+    else:
+        # If we're not posting, the password prompt page is shown
+        get_object_or_404(Zip, filename=requested_filename)
+        form = PasswordForm(initial={'filename': requested_filename})
+        return render_to_response('upload/base_ask.html', {'form': form}, context_instance=RequestContext(request))

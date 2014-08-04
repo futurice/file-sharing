@@ -6,11 +6,11 @@ urlpatterns = patterns('',
     # Upload url
     (r'^(?P<folder>\d+)/$', 'upload.views.upload'),
     #Zipping url
-    (r'zip/(?P<folder>\d+)/$', 'upload.views.zip'),
+    (r'zip_files/(?P<folder>\d+)/$', 'upload.views.zip'),
     # Get zip
     (r'^(?P<zip>\d+\.\w+)$', 'upload.views.getzip'),
     #Send mail + sms
     (r'send/$', 'upload.views.send'),
     # Password prompt
-    (r'ask/(?P<requestedFilename>\d+\.\w+)$', 'upload.views.passwordCheck'),
+    (r'ask/(?P<requestedFilename>\d+\.\w+)$', 'upload.views.password_check'),
 )
