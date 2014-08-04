@@ -1,7 +1,7 @@
 File sharing service
 ====================
 
-This is a simple anonymous file sharing service. Users can upload files and the service automatically generates password protected ZIP file.
+This is a simple anonymous file sharing service. User can upload any number of files and the service automatically generates password protected ZIP file.
 
 Background
 ----------
