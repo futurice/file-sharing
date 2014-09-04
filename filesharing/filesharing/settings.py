@@ -64,7 +64,7 @@ STATICFILES_DIRS = (
 )
 
 #Where the static files are in production
-STATIC_URL = "/futushare/"
+STATIC_URL = "/static/"
 
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
@@ -118,7 +118,7 @@ UPLOAD_DIRECTORY = '/home/share/tmp/'
 
 #The root url for the password protected zip files
 #This where django redirects the user to the zip
-ZIP_URL = 'https://share.futurice.com/futushare/zips/'
+ZIP_URL = 'https://share.futurice.com/zips/'
 
 #Location of passwordless zips
 #on the server
@@ -129,7 +129,7 @@ MAX_UPLOAD_FILE_SIZE = 367001600 # 350MB in bytes
 
 #Django server root e.g. http://share.futurice.com/
 #This is used in the visible zip links e.g. http://share.futurice.com/12345678.zip
-SERVER_ROOT_ADDRESS = 'https://share.futurice.com/futushare/'
+SERVER_ROOT_ADDRESS = 'https://share.futurice.com'
 
 #Length of the password
 PASSWORD_LENGTH = 8

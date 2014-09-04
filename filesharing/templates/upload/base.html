@@ -32,7 +32,7 @@ $(function(){
 	foldername += Math.floor(Math.random()*99);
 
 	//The url where the forms are posted
-	var uploadURL = '/futushare/'+foldername+'/';
+	var uploadURL = foldername+'/';
 	
 	//Code for the upload form's content
 	var newForm = '<div><input type="file" name="file" class="inputfile" /></div>';
@@ -375,7 +375,7 @@ $(function(){
 			$("#uploadStatus").text("Zipping...");
 
 			//Move to the next stage
-			$.post('/futushare/zip/'+foldername+'/', function(data) {
+			$.post('/zip/'+foldername+'/', function(data) {
 				$('#sendPassDiv').html(data);
 				$('#send-form-wrapper').show();
 				$('#status').html('');

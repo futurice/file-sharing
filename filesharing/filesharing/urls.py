@@ -6,7 +6,7 @@ urlpatterns = patterns('',
     # Upload url
     (r'^(?P<folder>\d+)/$', 'upload.views.upload'),
     #Zipping url
-    (r'zip_files/(?P<folder>\d+)/$', 'upload.views.zip'),
+    (r'zip/(?P<folder>\d+)/$', 'upload.views.zip_files'),
     # Get zip
     (r'^(?P<zip>\d+\.\w+)$', 'upload.views.getzip'),
     #Send mail + sms
