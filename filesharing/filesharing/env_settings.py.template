@@ -1,0 +1,4 @@
+# SMS settings
+
+SMS_USER = ''
+SMS_PASSWORD = ''
