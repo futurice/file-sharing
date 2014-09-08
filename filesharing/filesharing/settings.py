@@ -122,6 +122,9 @@ ZIP_URL = '{0}/zips/'.format(SERVER_ROOT_ADDRESS)
 PASSWORD_LENGTH = 8
 
 try:
-    from local_settings import *
-except ImportError as e:
-    print "WARNING : local settings couldn't be imported because:", e
+    LOCAL_SETTINGS
+except NameError:
+    try:
+        from local_settings import *
+    except ImportError as e:
+        print "WARNING : local settings couldn't be imported because:", e
