@@ -64,16 +64,13 @@ STATICFILES_DIRS = (
 )
 
 #Where the static files are in production
-STATIC_URL = "/futushare/"
+STATIC_URL = "/static/"
 
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
 ADMIN_MEDIA_PREFIX = '/media/'
-
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = '7au^i058z#5i%s&&wkrcaxm9#2l7!fvqzjghd35_#au)r(-!@g'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -118,7 +115,7 @@ UPLOAD_DIRECTORY = '/home/share/tmp/'
 
 #The root url for the password protected zip files
 #This where django redirects the user to the zip
-ZIP_URL = 'https://share.futurice.com/futushare/zips/'
+ZIP_URL = 'https://share.futurice.com/zips/'
 
 #Location of passwordless zips
 #on the server
@@ -129,12 +126,12 @@ MAX_UPLOAD_FILE_SIZE = 367001600 # 350MB in bytes
 
 #Django server root e.g. http://share.futurice.com/
 #This is used in the visible zip links e.g. http://share.futurice.com/12345678.zip
-SERVER_ROOT_ADDRESS = 'https://share.futurice.com/futushare/'
+SERVER_ROOT_ADDRESS = 'https://share.futurice.com'
 
 #Length of the password
 PASSWORD_LENGTH = 8
 
 try:
-    from env_settings import *
+    from local_settings import *
 except ImportError as e:
-    print "WARNING : settings for the development environment couldn't be imported because:", e
+    print "WARNING : local settings couldn't be imported because:", e

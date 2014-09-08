@@ -137,7 +137,7 @@ def send(request):
         #Send SMS
         sms = urllib2.quote('Your password is "' + password + '". You should receive a mail, with the link to the file, shortly. Br, Futurice')
 
-        smsurl = 'https://backupmaster2.futurice.com:13013/cgi-bin/sendsms?username=kanneluser&password=df89asj89I23hvcxSDasdf3298jvkjc839&to=' + phone + '&text=' + sms
+        smsurl = 'https://backupmaster2.futurice.com:13013/cgi-bin/sendsms?username={0}&password={1}&to={2}&text={3}'.format(settings.SMS_USER, settings.SMS_PASSWORD, phone, sms)
 
         response = urllib2.urlopen(smsurl)
         html = response.read()

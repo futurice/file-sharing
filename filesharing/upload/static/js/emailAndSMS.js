@@ -34,7 +34,7 @@ $("#sendButton").click(function(){
 		form.hide();
 		
 		//Send the email and sms
-		$.post('/futushare/send/', { file : file, email : email, phone : phone, password : password}, function(response) {
+		$.post('/send/', { file : file, email : email, phone : phone, password : password}, function(response) {
 
   				if (response == 'DONE'){
   					formstatus.html('<p>The messages were sent successfully.</p>');
