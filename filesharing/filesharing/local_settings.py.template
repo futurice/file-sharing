@@ -1,0 +1,9 @@
+# SMS settings
+
+SMS_USER = ''
+SMS_PASSWORD = ''
+
+# General settings
+
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = ''

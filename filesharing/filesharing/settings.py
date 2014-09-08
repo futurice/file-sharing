@@ -132,6 +132,6 @@ SERVER_ROOT_ADDRESS = 'https://share.futurice.com'
 PASSWORD_LENGTH = 8
 
 try:
-    from env_settings import *
+    from local_settings import *
 except ImportError as e:
-    print "WARNING : settings for the development environment couldn't be imported because:", e
+    print "WARNING : local settings couldn't be imported because:", e
