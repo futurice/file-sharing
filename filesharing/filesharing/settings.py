@@ -1,9 +1,6 @@
 # Django settings for filesharing project.
 import os
 
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
-
 ADMINS = (
     # ('name', 'email address'),
 )
@@ -110,23 +107,16 @@ EMAIL_HOST = 'smtpgw.futurice.com'
 
 #FUTUSHARE SETTIGNS
 
-#Directory for storing the files before the zipping
-UPLOAD_DIRECTORY = '/home/share/tmp/'
-
-#The root url for the password protected zip files
-#This where django redirects the user to the zip
-ZIP_URL = 'https://share.futurice.com/zips/'
-
-#Location of passwordless zips
-#on the server
-FREE_ZIP_DIR = '/home/share/openzips/'
-
 #Max size of individual uploaded files in bytes
 MAX_UPLOAD_FILE_SIZE = 367001600 # 350MB in bytes
 
 #Django server root e.g. http://share.futurice.com/
 #This is used in the visible zip links e.g. http://share.futurice.com/12345678.zip
 SERVER_ROOT_ADDRESS = 'https://share.futurice.com'
+
+#The root url for the password protected zip files
+#This where django redirects the user to the zip
+ZIP_URL = '{0}/zips/'.format(SERVER_ROOT_ADDRESS)
 
 #Length of the password
 PASSWORD_LENGTH = 8

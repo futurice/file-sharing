@@ -24,6 +24,16 @@ def upload(request, folder):
             if uploaded_file.size > settings.MAX_UPLOAD_FILE_SIZE:
                 return HttpResponse('File was too big.')
 
+            # Create folder for uploads if not done yet
+            if not path.exists(settings.UPLOAD_DIRECTORY):
+                try:
+                    makedirs(settings.UPLOAD_DIRECTORY)
+                except:
+                    time.sleep(1)
+                    if not path.exists(settings.UPLOAD_DIRECTORY):
+                        print "Upload directory could not be created"
+                        return HttpResponseServerError
+
             # Create folder
             dir = settings.UPLOAD_DIRECTORY + folder + '/'
             if not path.exists(dir):
@@ -73,6 +83,16 @@ def zip_files(request, folder):
                 files.append(settings.UPLOAD_DIRECTORY + folder + '/' + filename)
         except IOError:
             return HttpResponseRedirect('/')
+
+        #Create zip directory if not done yet
+        if not path.exists(settings.FREE_ZIP_DIR):
+            try:
+                makedirs(settings.FREE_ZIP_DIR)
+            except:
+                time.sleep(1)
+                if not path.exists(settings.FREE_ZIP_DIR):
+                    print "Zip directory could not be created"
+                    return HttpResponseServerError
 
         #Path for the zip
         zippath = settings.FREE_ZIP_DIR + folder + '.zip'

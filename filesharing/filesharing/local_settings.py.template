@@ -1,3 +1,8 @@
+from settings import *
+
+DEBUG = True
+TEMPLATE_DEBUG = DEBUG
+
 # SMS settings
 
 SMS_USER = ''
@@ -7,3 +12,12 @@ SMS_PASSWORD = ''
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = ''
+
+# Path settings
+
+#Location of passwordless zips
+#on the server
+FREE_ZIP_DIR = '{0}/openzips/'.format(PROJECT_PATH)
+
+#Directory for storing the files before the zipping
+UPLOAD_DIRECTORY = '{0}/tmp/'.format(PROJECT_PATH)
