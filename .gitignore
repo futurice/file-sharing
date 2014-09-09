@@ -9,3 +9,6 @@ local_settings.py
 .sass*
 *.db
 *.idea
+openzips/
+tmp/
+
