@@ -4,6 +4,7 @@
 {% block title %}{{ block.super }}: Password{% endblock %}
 
 {% block headscript %}
+<script>
 
 $(function(){
   
@@ -14,7 +15,9 @@ $("#download").click(function(){
 });
 
 });
- 
+
+</script>
+
 {% endblock %}
 
 {% block content %}

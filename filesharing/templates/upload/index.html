@@ -1,0 +1,109 @@
+{% extends "upload/base.html" %}
+{% load static %}
+
+{% block headscript %}
+<script src="{% get_static_prefix %}js/emailAndSMS.js" type="text/javascript" charset="utf-8"></script>
+<script src="{% get_static_prefix %}js/upload.js" type="text/javascript" charset="utf-8"></script>
+{% endblock %}
+
+{% block content %}
+<div id="step1" class="steps">
+
+			<div class="leftcolumn">
+				<img id="greenball1" src="{% get_static_prefix %}img/1.png" alt="1">
+			</div>
+
+			<div class="rightcolumn">
+				<div id="chooseDiv" class="bigbutton choosePadding">
+
+					<span id="chooseText">Choose your files.</span>
+					<span id="maxSize">(maximum files size is 300MB)</span>
+
+				</div>
+				<div id="drop-area"><span id="drop-text">Or drag them here.</span></div>
+				<div id="forms-wrapper"></div>
+
+				<div id="status"></div>
+				<div id="hovering"></div>
+			</div>
+	
+
+		</div>
+
+<div class="spacer"></div>
+
+		<div id="step2" class="steps">
+
+			<div class="leftcolumn">
+				<img id="greenball2" src="{% get_static_prefix %}img/2.png" alt="2">
+			</div>
+
+			<div class="rightcolumn">
+				<div id="uploadDiv">
+					<span id="uploadText">Upload them.</span>
+					<span id="uploadStatus"></span>
+				</div>
+			</div>
+	
+
+		</div>
+
+<div class="spacer"></div>
+
+		<div id="step3" class="steps">
+
+			<div class="leftcolumn">
+				<img id="greenball3" src="{% get_static_prefix %}img/3.png" alt="3">
+			</div>
+
+			<div class="rightcolumn">
+				<div id="recieveDiv">
+					<span id="recieveText">Receive a URL to a password protected .zip file.</span><br>
+					<div id="sendPassDiv"></div>
+
+<div id="send-form-wrapper">
+
+	<div id="send-status"></div>
+	
+	<div id="send-form">
+
+		<div id="email-and-phone">
+			<div id="labels">
+				<span>email:  </span>
+				<div class="smallspacer"></div>
+				<span>phone number:  </span>
+			</div>
+
+			<div id="inputs">
+				<div id="sendEmail">
+					<input type="text" name="email" id="email" placeholder="example@futurice.com" size="25">
+				</div>
+				<div class="smallspacer"></div>
+				<div id="sendSMS">
+					<input type="text" name="sms" id="sms" value="00358" placeholder="00358 50 123 123 12" size="25">
+				</div>
+
+			</div>
+		</div>
+
+		<div class="securityInfo">
+			<ul>
+				<li>If you lose the address or password, you have to upload the same files again.</li>
+				<li>Do not deliver the ZIP and password on same media.</li>
+			</ul>
+		</div>
+	
+		<div id="sendButton" class="smallbutton sendPadding">send</div>
+	</div>
+</div>
+
+
+				</div>
+			</div>
+	
+
+		</div>
+
+	</div>
+<div id="iframes"></div>
+{% endblock %}

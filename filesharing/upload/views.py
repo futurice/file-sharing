@@ -12,7 +12,7 @@ import subprocess, random, string, urllib2, re, shutil, mimetypes, time
 
 # Renders the frontpage
 def index(request):
-    return render_to_response('upload/base.html')
+    return render_to_response('upload/index.html')
 
 
 # This method saves a file posted to it in the directory specified in the settings
@@ -99,7 +99,7 @@ def zip_files(request, folder):
             pw_zip = Zip(filename=folder+'.zip', password=password)
             pw_zip.save()
 
-            return render_to_response('upload/base_done.html', {'file': folder + '.zip',
+            return render_to_response('upload/done.html', {'file': folder + '.zip',
                      'password': password, 'link': settings.SERVER_ROOT_ADDRESS + 'ask/' + folder + '.zip'})
 
         else:
@@ -191,17 +191,17 @@ def password_check(request, requested_filename):
                         response['Content-Disposition'] = 'attachment; filename=' + filename
 
                 except IOError:
-                    return render_to_response('upload/base_ask.html', {'form': form, 'status' : 'There was an error reading the file.'}, context_instance=RequestContext(request))
+                    return render_to_response('upload/ask.html', {'form': form, 'status' : 'There was an error reading the file.'}, context_instance=RequestContext(request))
 
                 return response
 
             else:
-                return render_to_response('upload/base_ask.html', {'form': form, 'status' : 'Wrong password.'}, context_instance=RequestContext(request))
+                return render_to_response('upload/ask.html', {'form': form, 'status' : 'Wrong password.'}, context_instance=RequestContext(request))
         else:
-            return render_to_response('upload/base_ask.html', {'form': form}, context_instance=RequestContext(request))
+            return render_to_response('upload/ask.html', {'form': form}, context_instance=RequestContext(request))
 
     else:
         # If we're not posting, the password prompt page is shown
         get_object_or_404(Zip, filename=requested_filename)
         form = PasswordForm(initial={'filename': requested_filename})
-        return render_to_response('upload/base_ask.html', {'form': form}, context_instance=RequestContext(request))
+        return render_to_response('upload/ask.html', {'form': form}, context_instance=RequestContext(request))

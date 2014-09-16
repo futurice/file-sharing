@@ -12,5 +12,5 @@ urlpatterns = patterns('',
     #Send mail + sms
     (r'send/$', 'upload.views.send'),
     # Password prompt
-    (r'ask/(?P<requestedFilename>\d+\.\w+)$', 'upload.views.password_check'),
+    (r'ask/(?P<requested_filename>\d+\.\w+)$', 'upload.views.password_check'),
 )
