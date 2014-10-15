@@ -12,7 +12,7 @@ import subprocess, random, string, urllib2, re, shutil, mimetypes, time
 
 # Renders the frontpage
 def index(request):
-    return render_to_response('upload/index.html')
+    return render_to_response('upload/index.html', {'title': settings.TITLE})
 
 
 # This method saves a file posted to it in the directory specified in the settings
@@ -191,17 +191,17 @@ def password_check(request, requested_filename):
                         response['Content-Disposition'] = 'attachment; filename=' + filename
 
                 except IOError:
-                    return render_to_response('upload/ask.html', {'form': form, 'status' : 'There was an error reading the file.'}, context_instance=RequestContext(request))
+                    return render_to_response('upload/ask.html', {'form': form, 'status' : 'There was an error reading the file.', 'title' : settings.TITLE}, context_instance=RequestContext(request))
 
                 return response
 
             else:
-                return render_to_response('upload/ask.html', {'form': form, 'status' : 'Wrong password.'}, context_instance=RequestContext(request))
+                return render_to_response('upload/ask.html', {'form': form, 'status' : 'Wrong password.', 'title' : settings.TITLE}, context_instance=RequestContext(request))
         else:
-            return render_to_response('upload/ask.html', {'form': form}, context_instance=RequestContext(request))
+            return render_to_response('upload/ask.html', {'form': form, 'title' : settings.TITLE}, context_instance=RequestContext(request))
 
     else:
         # If we're not posting, the password prompt page is shown
         get_object_or_404(Zip, filename=requested_filename)
         form = PasswordForm(initial={'filename': requested_filename})
-        return render_to_response('upload/ask.html', {'form': form}, context_instance=RequestContext(request))
+        return render_to_response('upload/ask.html', {'form': form, 'title' : settings.TITLE}, context_instance=RequestContext(request))
