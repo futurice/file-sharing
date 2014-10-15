@@ -12,6 +12,9 @@ SMS_PASSWORD = ''
 
 # General settings
 
+#Title for the site
+TITLE = "Share"
+
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = ''
 
