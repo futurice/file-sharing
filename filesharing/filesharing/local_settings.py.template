@@ -20,6 +20,9 @@ EMAIL_SUBJECT = 'New file on Example file transferring server'
 
 # General settings
 
+#Title for the site
+TITLE = "Share"
+
 #Django server root e.g. http://share.example.com/
 #This is used in the visible zip links e.g. http://share.example.com/12345678.zip
 SERVER_ROOT_ADDRESS = 'https://share.example.com/'
