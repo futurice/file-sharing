@@ -1,6 +1,7 @@
 LOCAL_SETTINGS = True
 from settings import *
 import os
+import urllib
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -9,7 +10,8 @@ TEMPLATE_DEBUG = DEBUG
 SMS = False # Set for True if sending SMS's
 SMS_USER = ''
 SMS_PASSWORD = ''
-SMS_BASE_URL = 'https://sms.com/username={0}&password={1}&to=%s&text=%s'.format(SMS_USER, SMS_PASSWORD)
+SMS_BASE_URL = 'https://sms.com/username={0}&password={1}&to=%s&text=%s'.format(
+					urllib.quote_plus(SMS_USER), urllib.quote_plus(SMS_PASSWORD))
 
 # Email settings
 EMAIL_HOST = 'smtp.example.com'
