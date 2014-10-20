@@ -4,11 +4,13 @@ from django.core.validators import validate_email
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseServerError, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from django.template.loader import render_to_string
+from django.core.exceptions import ValidationError
 from os import path, makedirs, listdir
 from upload.forms import PasswordForm
 from upload.models import Zip
 import smtplib
-import subprocess, random, string, urllib2, re, shutil, mimetypes, time
+import subprocess, random, string, urllib, urllib2, re, shutil, mimetypes, time
 
 # Renders the frontpage
 def index(request):
@@ -127,31 +129,31 @@ def send(request):
         filename = post.__getitem__('file')
 
         #Validate mail and phone
-        if not validate_email(email):
+        try:
+            validate_email(email)
+        except ValidationError:
             return HttpResponse('BADEMAIL')
 
-        #if re.match(r"\+(\d+)$", phone) == None:
-        if re.match(r"00(\d+)$", phone) == None:
-            return HttpResponse('BADPHONE')
+        if settings.SMS:
+            if re.match(r"00(\d+)$", phone) == None:
+                return HttpResponse('BADPHONE')
 
         #Send SMS
-        sms = urllib2.quote('Your password is "' + password + '". You should receive a mail, with the link to the file, shortly. Br, Futurice')
+        sms = urllib2.quote(render_to_string('mails/file_sms.txt', {'password' : password}))
 
-        smsurl = 'https://backupmaster2.futurice.com:13013/cgi-bin/sendsms?username={0}&password={1}&to={2}&text={3}'.format(settings.SMS_USER, settings.SMS_PASSWORD, phone, sms)
+        smsurl = settings.SMS_BASE_URL%(urllib.quote_plus(phone), urllib.quote_plus(sms))
 
-        response = urllib2.urlopen(smsurl)
-        html = response.read()
-        if html != '0: Accepted for delivery':
-            return HttpResponse('SMSFAIL')
+        if settings.SMS:
+            response = urllib2.urlopen(settings.SMS_URL)
+            html = response.read()
+            if html != '0: Accepted for delivery': #Kannel response body
+                return HttpResponse('SMSFAIL')
 
         #Send Email
-        email_body = 'Hi,\n\nWe have a new file for you:\n' + settings.SERVER_ROOT_ADDRESS + 'ask/' + filename + '\n\nWe have sent the password, for the file, to your mobile.\n\nBr, Futurice'
-
-        from_addr = 'noreply@futurice.com'
-        subject = 'New file on Futurice file transferring server'
+        email_body = render_to_string('mails/file_email.txt', {'url': '%sask/%s'%(settings.SERVER_ROOT_ADDRESS, urllib.quote_plus(filename))})
 
         try:
-            send_mail(subject, email_body, from_addr, [email], fail_silently=False)
+            send_mail(settings.EMAIL_SUBJECT, email_body, settings.EMAIL_FROM, [email], fail_silently=False)
         except smtplib.SMTPException:
             return HttpResponse('EMAILFAIL')
 

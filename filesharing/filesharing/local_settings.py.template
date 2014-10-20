@@ -1,19 +1,35 @@
 LOCAL_SETTINGS = True
 from settings import *
 import os
+import urllib
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 # SMS settings
-
+SMS = False # Set for True if sending SMS's
 SMS_USER = ''
 SMS_PASSWORD = ''
+SMS_BASE_URL = 'https://sms.com/username={0}&password={1}&to=%s&text=%s'.format(
+					urllib.quote_plus(SMS_USER), urllib.quote_plus(SMS_PASSWORD))
+
+# Email settings
+EMAIL_HOST = 'smtp.example.com'
+EMAIL_FROM = 'noreply@example.com'
+EMAIL_SUBJECT = 'New file on Example file transferring server'
 
 # General settings
 
 #Title for the site
 TITLE = "Share"
+
+#Django server root e.g. http://share.example.com/
+#This is used in the visible zip links e.g. http://share.example.com/12345678.zip
+SERVER_ROOT_ADDRESS = 'https://share.example.com/'
+
+#The root url for the password protected zip files
+#This where django redirects the user to the zip
+ZIP_URL = '{0}/zips/'.format(SERVER_ROOT_ADDRESS)
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = ''

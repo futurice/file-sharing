@@ -1,0 +1,1 @@
+Your password is "{{password}}". You should receive a mail, with the link to the file, shortly. Br, Futurice
