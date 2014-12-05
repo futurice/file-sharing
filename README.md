@@ -1,7 +1,7 @@
 File sharing service
 ====================
 
-This is a simple anonymous file sharing service. User can upload any number of files and the service automatically generates password protected ZIP file.
+File Sharing is a simple anonymous file sharing service where users can upload any number of files and the service will automatically generate a password protected ZIP file from the content. After uploading the file, the app will give you a password and a link for the file that you can pass on to the person in need. If you’re looking for a good self-hosted solution for sharing files, you might want to try this out!
 
 Background
 ----------
@@ -10,8 +10,9 @@ This application was created as an internal support system at [Futurice](http://
 Installation
 ------------
 
-- Install Django (`pip install -r requirements.txt`)
-- By default, passwords are generated with pwgen (in Debian based systems: `aptitude install pwgen`)
+Install requirements with `pip install -r requirements.txt`
+
+Run the application with `python manage.py runserver`
 
 About Futurice
 --------------
@@ -20,5 +21,3 @@ About Futurice
 Support
 -------
 Pull requests and new issues are of course welcome. If you have any questions, comments or feedback you can contact us by email at sol@futurice.com. We will try to answer your questions, but we have limited manpower so please, be patient with us.
-
-
