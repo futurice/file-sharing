@@ -11,4 +11,4 @@ local_settings.py
 *.idea
 openzips/
 tmp/
-
+/env/
