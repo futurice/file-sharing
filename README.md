@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/futurice/file-sharing.svg?branch=master)](https://travis-ci.org/futurice/file-sharing)
 File sharing service
 ====================
 
