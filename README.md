@@ -12,7 +12,17 @@ Installation
 
 Install requirements with `pip install -r requirements.txt`
 
-Run the application with `python manage.py runserver`
+Edit `local_settings.py`:
+```bash
+cd filesharing/filesharing
+cp local_settings.py.template local_settings.py
+# edit the file to set the Django SECRET_KEY and customize any settings
+cd -
+```
+
+Run the tests: `filesharing/manage.py test filesharing/`
+
+Run the application with `filesharing/manage.py runserver`
 
 About Futurice
 --------------
