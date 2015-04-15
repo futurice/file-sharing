@@ -4,6 +4,10 @@ File sharing service
 
 File Sharing is a simple anonymous file sharing service where users can upload any number of files and the service will automatically generate a password protected ZIP file from the content. After uploading the file, the app will give you a password and a link for the file that you can pass on to the person in need. If you’re looking for a good self-hosted solution for sharing files, you might want to try this out!
 
+Screenshot
+----------
+<img src="http://i.imgur.com/ywBRd9v.png" alt="screenshot" width="500px">
+
 Background
 ----------
 This application was created as an internal support system at [Futurice](http://www.futurice.com).
