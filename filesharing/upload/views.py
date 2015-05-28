@@ -139,12 +139,12 @@ def send(request):
                 return HttpResponse('BADPHONE')
 
         #Send SMS
-        sms = urllib2.quote(render_to_string('mails/file_sms.txt', {'password' : password}))
+        sms = render_to_string('mails/file_sms.txt', {'password' : password})
 
         smsurl = settings.SMS_BASE_URL%(urllib.quote_plus(phone), urllib.quote_plus(sms))
 
         if settings.SMS:
-            response = urllib2.urlopen(settings.SMS_URL)
+            response = urllib2.urlopen(smsurl)
             html = response.read()
             if html != '0: Accepted for delivery': #Kannel response body
                 return HttpResponse('SMSFAIL')
